@@ -1,0 +1,221 @@
+<!doctype HTML>
+<html>
+    <head>
+        <title>Collify POC</title>
+        <meta charset="UTF-8">
+        <script src="/socket.io/socket.io.js"></script>
+        <style>
+        </style>
+    </head>
+    <body>
+        <div id="nowplaying"></div>
+        <hr>
+        <div id="searchbox">Sök: <input id="searchstring"></div>
+        <hr>
+        <div id="resultbox"></div>
+        <hr>
+        <div id="queuebox"></div>
+        <script>
+            var ajax = {};
+            ajax.x = function() {
+                if (typeof XMLHttpRequest !== 'undefined') {
+                    return new XMLHttpRequest();  
+                }
+                var versions = [
+                    "MSXML2.XmlHttp.5.0",   
+                    "MSXML2.XmlHttp.4.0",  
+                    "MSXML2.XmlHttp.3.0",   
+                    "MSXML2.XmlHttp.2.0",  
+                    "Microsoft.XmlHttp"
+                ];
+
+                var xhr;
+                for(var i = 0; i < versions.length; i++) {  
+                    try {  
+                        xhr = new ActiveXObject(versions[i]);  
+                        break;  
+                    } catch (e) {
+                    }  
+                }
+                return xhr;
+            };
+
+            ajax.send = function(url, callback, method, data, sync) {
+                var x = ajax.x();
+                x.open(method, url, sync);
+                x.onreadystatechange = function() {
+                    if (x.readyState == 4) {
+                        callback(x.responseText)
+                    }
+                };
+                if (method == 'POST') {
+                    x.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                }
+                x.send(data)
+            };
+
+            ajax.get = function(url, data, callback, sync) {
+                var query = [];
+                for (var key in data) {
+                    query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+                }
+                ajax.send(url + '?' + query.join('&'), callback, 'GET', null, sync)
+            };
+
+            ajax.post = function(url, data, callback, sync) {
+                var query = [];
+                for (var key in data) {
+                    query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+                }
+                ajax.send(url, callback, 'POST', query.join('&'), sync)
+            };
+        </script>
+        <script>
+        var guid = (function() {
+          function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                       .toString(16)
+                       .substring(1);
+          }
+          return function() {
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+                   s4() + '-' + s4() + s4() + s4();
+          };
+        })();
+        </script>
+        <script>
+            // find template and compile it
+            var resultsPlaceholder = document.getElementById('results'),
+                spotiFrame = document.getElementById('spotiframe'),
+                queueBox = document.getElementById('queuebox'),
+                nowplayingBox = document.getElementById('nowplaying'),
+                playingCssClass = 'playing',
+                audioObject = null,
+                clientUUID = guid(),
+                cookie = document.cookie;
+
+            // Check for existing uuid
+            if (cookie) { 
+                clientUUID = cookie;
+            } else {
+                document.cookie = clientUUID;
+            }
+
+            console.log('User id:' + cookie);
+
+            var fetchTracks = function (albumId, callback) {
+                ajax.get(
+                    'https://api.spotify.com/v1/albums/' + albumId,
+                    {},
+                    function (response) {
+                        callback(response);
+                    }
+                );
+            };
+
+            var voteTrack = function (target) {
+                var track = JSON.parse(target.target.data);
+                io.emit('vote',{user: clientUUID, data: track});
+                resultbox.innerHTML = '';
+            };
+
+            var playTrack = function (data) {
+                if(data && data.id) {
+                    var url = 'https://play.spotify.com/track/'+data.id;
+                    var spotiplayer=window.open(url,'spotiplayer');
+                    window.focus();
+                    nowplaying.innerHTML = 'Nu spelas: ' + data.artists[0].name+' - '+data.name;
+                }
+                return false;
+            };
+
+            var processSearchResult = function (response) {
+                var obj,
+                    resultbox = document.getElementById('resultbox'),
+                    curTrack;
+
+                resultbox.innerHTML = '';
+
+                if(obj = JSON.parse(response)) {
+                    console.log(obj);
+                    if(obj.tracks && obj.tracks.items.length > 0 ) {
+                        for(track in obj.tracks.items) {
+                            curTrack = obj.tracks.items[track];
+
+                            var newElm = document.createElement("div");
+                            newElm.id = curTrack.id;
+                            newElm.data = JSON.stringify(curTrack);
+                            newElm.class = 'searchresult';
+                            newElm.innerHTML = curTrack.artists[0].name+' - '+curTrack.name;
+                            newElm.addEventListener('click', voteTrack);
+
+                            resultbox.appendChild(newElm);
+
+                        }
+                    } else {
+                        resultbox.innerHTML = 'NUL!';
+                    }
+                } else {
+                    resultbox.innerHTML = 'NUL!';
+                }
+            };
+
+            var searchTracks = function (query) {
+                ajax.get(
+                   'https://api.spotify.com/v1/search',
+                    {
+                        q: query,
+                        type: 'track'
+                    },
+                    processSearchResult
+                );
+            };
+
+            var searchStringElm = document.getElementById('searchstring'),
+                searchString;
+
+            searchStringElm.addEventListener('keypress',function(e) {
+                if(e.keyCode===13) {
+                    searchTracks(searchStringElm.value);
+                }
+            });
+        </script>
+        <script>
+        io = io.connect()
+
+        io.on('play', function(data) {
+           console.log('Playing', data);
+           playTrack(data);
+        });
+
+        io.on('tracks', function(data) {
+            console.log('Updating tracks',data);
+            var obj,
+                curTrack;
+
+            queuebox.innerHTML = '';
+
+            if(data) {
+                for(track in data) {
+                    curTrack = data[track];
+
+                    var newElm = document.createElement("div");
+                    newElm.id = curTrack.id;
+                    newElm.data = JSON.stringify(curTrack);
+                    newElm.class = 'searchresult';
+                    newElm.innerHTML = '('+(curTrack.votes.length?curTrack.votes.length:0)+')'+curTrack.artists[0].name+' - '+curTrack.name;
+                    newElm.addEventListener('click', voteTrack);
+
+                    queuebox.appendChild(newElm);
+
+                }
+            } else {
+                queuebox.innerHTML = 'NUL!';
+            }
+        });
+
+        io.emit('ready');
+
+        </script>
+    </body>
+</html>
