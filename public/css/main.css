@@ -72,12 +72,11 @@ body, html {
 	padding-bottom:3px;
 	clear:both;
 }
-.votes {
-	float: right;
-}
 .vote {
 	font-size: 32px;
 	color: #555657;
+	float: right;
+	margin-left:5px;
 }
 .tr_votes {
 	width:32px;

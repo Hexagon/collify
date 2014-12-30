@@ -7,7 +7,6 @@ var express = require('express.io'),
 app.http().io();
 
 nextTrackID = function (useTracks) {
-	console.log('nti',useTracks);
 
 	// Find max amount of votes
 	var maxVotes = 0,
@@ -16,15 +15,15 @@ nextTrackID = function (useTracks) {
 		curTrack;
 	for(t in useTracks) {
 		curTrack = useTracks[t];
-		if (curTrack.votes.length > maxVotes) {
-			maxVotes = curTrack.votes.length;
+		if ((curTrack.votes.length-curTrack.downvotes.length) > maxVotes) {
+			maxVotes = (curTrack.votes.length-curTrack.downvotes.length);
 		}
 	}
 
 	// Find the song that was played longest ago
 	for(t in useTracks) {
 		curTrack = useTracks[t];
-		if(curTrack.votes.length == maxVotes && curTrack.lastplayed < minLastPlayed) {
+		if((curTrack.votes.length-curTrack.downvotes.length) == maxVotes && curTrack.lastplayed < minLastPlayed) {
 			nextTrack = curTrack.id;
 			minLastPlayed = curTrack.lastplayed;
 		}
@@ -65,6 +64,7 @@ checkPlaying = function () {
 			isPlaying = Date.now();
 			// Reset votes
 			tracks[nextTrack].votes = new Array();
+			tracks[nextTrack].downvotes = new Array();
 			// Reset last played
 			tracks[nextTrack].lastplayed = Date.now();
 			nowPlaying = tracks[nextTrack];
@@ -75,7 +75,7 @@ checkPlaying = function () {
 			console.log('Waiting...');
 		}
 	} else if ( isPlaying ) {
-		console.log( Math.floor(((isPlaying + nowPlaying.duration_ms + 5000) - Date.now()) / 1000) + ' s left til next song.');
+		console.log( Math.floor(((isPlaying + nowPlaying.duration_ms + 1000) - Date.now()) / 1000) + ' s left til next song.');
 	} 
 	setTimeout(checkPlaying,1000);
 };
@@ -88,14 +88,27 @@ app.io.route('vote', function(req) {
     if(tracks[data.id]===undefined) {
     	tracks[data.id]=data;
     	tracks[data.id].votes = new Array();
+    	tracks[data.id].downvotes = new Array();
     }
 
 	if(tracks[data.id].votes.indexOf(user) === -1) {
 		if(tracks[data.id].votes.length===0) {
 			tracks[data.id].firstvote = Date.now();
-			tracks[data.id].lastplayed = Date.now();
+			tracks[data.id].lastplayed = 0;
 		}
 		tracks[data.id].votes.push(user);
+	}
+
+	broadcastTracks();
+});
+
+app.io.route('votedown', function(req) {
+	
+	var data = req.data.data,
+		user = req.data.user;
+
+	if(tracks[data.id].downvotes.indexOf(user) === -1) {
+		tracks[data.id].downvotes.push(user);
 	}
 
 	broadcastTracks();

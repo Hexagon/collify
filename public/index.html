@@ -1,7 +1,7 @@
 <!doctype HTML>
 <html>
     <head>
-        <title>Collify POC</title>
+        <title>Collify Alpha</title>
         <meta charset="UTF-8">
         <script src="/socket.io/socket.io.js"></script>
         <script src="js/guid.js"></script>
@@ -64,19 +64,31 @@
                 );
             };
 
-            var voteTrack = function (target) {
+            var voteUpTrack = function (target) {
                 var track = JSON.parse(target.target.data);
                 io.emit('vote',{user: clientUUID, data: track});
+                resultbox.innerHTML = '';
+            };
+
+            var voteDownTrack = function (target) {
+                var track = JSON.parse(target.target.data);
+                io.emit('votedown',{user: clientUUID, data: track});
                 resultbox.innerHTML = '';
             };
 
             var playTrack = function (data) {
                 if(data && data.id) {
 
-                    // Pop player in new tab
+                    // Desktop player
+                    location.href='spotify:track:'+data.id;
+
+
+                    /* ToDo: Use webplayer as fallback
+                    // Web player
                     var url = 'https://play.spotify.com/track/'+data.id,
                         spotiplayer=window.open(url,'spotiplayer');
-                    
+                    */
+
                     // Try to regain focus
                     window.focus();
 
@@ -106,7 +118,14 @@
 
                             var newElm = document.createElement("div");
                             newElm.id = curTrack.id;
-                            newElm.data = JSON.stringify(curTrack);
+
+                            var clearFixElement = document.createElement("div");
+                            clearFixElement.className = "clearfix";
+
+                            var vuElement = document.createElement("i");
+                            vuElement.className = "vote fa fa-plus-circle";
+                            vuElement.data = JSON.stringify(curTrack);
+                            vuElement.addEventListener('click', voteUpTrack);
 
                             newElm.className = 'track searchresult';
                             newElm.innerHTML = '<div class="tr_votes"> - </div>';
@@ -114,11 +133,9 @@
                             newElm.innerHTML += '<div class="tr_artist">'+curTrack.name+'</div>';
                             newElm.innerHTML += '<div class="dash">-</div>';
                             newElm.innerHTML += '<div class="tr_name">'+curTrack.artists[0].name+'</div>';
-                            newElm.innerHTML += '<div class="votes"><i class="vote fa fa-plus-circle"></i></div>';
-                            
-                            newElm.innerHTML += '<div class="clearfix"></div>';
-                            
-                            newElm.addEventListener('click', voteTrack);
+
+                            newElm.appendChild(vuElement);
+                            newElm.appendChild(clearFixElement);
 
                             resultbox.appendChild(newElm);
 
@@ -172,20 +189,31 @@
                 for(track in data) {
                     curTrack = data[track];
 
+                    var clearFixElement = document.createElement("div");
+                    clearFixElement.className = "clearfix";
+
+                    var vuElement = document.createElement("i");
+                    vuElement.className = "vote fa fa-arrow-circle-up";
+                    vuElement.data = JSON.stringify(curTrack);
+                    vuElement.addEventListener('click', voteUpTrack);
+
+                    var vdElement = document.createElement("i");
+                    vdElement.className = "vote fa fa-arrow-circle-down";
+                    vdElement.data = JSON.stringify(curTrack);
+                    vdElement.addEventListener('click', voteDownTrack);
+
                     var newElm = document.createElement("div");
                     newElm.id = curTrack.id;
-                    newElm.data = JSON.stringify(curTrack);
                     newElm.className = 'track';
-                    newElm.innerHTML = '<div class="tr_votes">'+curTrack.votes.length+'</div>';
+                    newElm.innerHTML = '<div class="tr_votes">'+(curTrack.votes.length-curTrack.downvotes.length)+'</div>';
                     newElm.innerHTML += '<div class="tr_albumart" style="background: URL('+curTrack.album.images[2].url+')"></div>';
                     newElm.innerHTML += '<div class="tr_artist">'+curTrack.name+'</div>';
                     newElm.innerHTML += '<div class="dash">-</div>';
                     newElm.innerHTML += '<div class="tr_name">'+curTrack.artists[0].name+'</div>';
-                    newElm.innerHTML += '<div class="votes"><i class="vote fa fa-arrow-circle-up"></i> <i class="vote fa fa-arrow-circle-down"></i></div>';
                     
-                    newElm.innerHTML += '<div class="clearfix"></div>';
-
-                    newElm.addEventListener('click', voteTrack);
+                    newElm.appendChild(vdElement);
+                    newElm.appendChild(vuElement);
+                    newElm.appendChild(clearFixElement);
 
                     queuebox.appendChild(newElm);
 
