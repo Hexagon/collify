@@ -1,0 +1,104 @@
+/* GENERAL */
+body, html {
+	margin: 0px;
+	padding: 0px;
+	background-color: #121314;
+}
+
+* {
+	color: #C2C3C4;
+	font-family: 'Titillium Web';
+	font-weight: 200;
+}
+
+.clearfix {
+	clear:both;
+}
+
+#wrapper {
+	padding:20px;
+}
+
+/* NOW PLAYING */
+#nowplaying {
+	display:block;
+	background-color: #1c1d1e;
+}
+#np_albumart {
+	display:block;
+	width: 128px;
+	height: 128px;
+	background-size: 128px 128px;
+	float:left;
+	margin-right:10px;
+}
+#np_album {
+	font-size: 32px;
+}
+#np_artist, #np_name, #np_duration, .dash {
+	font-size: 18px;
+	float: left;
+}
+.dash, #np_duration {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+/* SEARCH */
+#searchbox {
+	background-color: #232425;
+	border-radius:5px;
+	padding:3px;
+	padding-left:10px;
+	float:right;
+}
+#searchstring {
+	border: 0px none;
+	padding: 2px;
+	background-color: #232425;
+	outline: none;
+}
+#searchstring:active, #searchstring:hover {
+	border: 0px none;
+}
+
+/* SEARCH RESULT / TRACK QUEUE */
+.searchresult {
+	background-color: #18191A;
+}
+.track {
+	border-bottom: 1px solid #222324;
+	padding-top:3px;
+	padding-bottom:3px;
+	clear:both;
+}
+.votes {
+	float: right;
+}
+.vote {
+	font-size: 32px;
+	color: #555657;
+}
+.tr_votes {
+	width:32px;
+	height:32px;
+	float:left;
+	margin-right: 5px;
+	border-radius: 3px;
+	border: 1px solid #343536;
+	text-align: center;
+	font-size:28px;
+	padding:0px;
+	line-height:32px;
+	color: #555657;
+}
+.tr_albumart {
+	width:32px;
+	height:32px;
+	float:left;
+	margin-right: 5px;
+	border-radius: 3px;
+}
+.tr_artist, .tr_name {
+	float:left;
+}

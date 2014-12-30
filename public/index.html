@@ -4,93 +4,46 @@
         <title>Collify POC</title>
         <meta charset="UTF-8">
         <script src="/socket.io/socket.io.js"></script>
-        <style>
-        </style>
+        <script src="js/guid.js"></script>
+        <script src="js/ajax.js"></script>
+        <link href='http://fonts.googleapis.com/css?family=Titillium+Web:200,300,400' rel='stylesheet' type='text/css'>
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="css/main.css">
     </head>
     <body>
-        <div id="nowplaying"></div>
-        <hr>
-        <div id="searchbox">Sök: <input id="searchstring"></div>
-        <hr>
-        <div id="resultbox"></div>
-        <hr>
-        <div id="queuebox"></div>
+        <div id="wrapper">
+            <div id="nowplaying">
+                <div id="np_albumart"></div>
+                <div id="np_album"></div>
+                <div id="np_artist"></div>
+                <div class="dash"> - </div>
+                <div id="np_name"></div>
+                <div id="np_duration"></div>
+                <div class="clearfix"></div>
+            </div>
+            <div>
+                <div id="searchbox">
+                    <i class="fa fa-search"></i>
+                    <input id="searchstring">
+                </div>
+                <h3>Current queue</h3>
+            </div>
+            <div id="resultbox"></div>
+            <div id="queuebox"></div>
+        </div>
         <script>
-            var ajax = {};
-            ajax.x = function() {
-                if (typeof XMLHttpRequest !== 'undefined') {
-                    return new XMLHttpRequest();  
-                }
-                var versions = [
-                    "MSXML2.XmlHttp.5.0",   
-                    "MSXML2.XmlHttp.4.0",  
-                    "MSXML2.XmlHttp.3.0",   
-                    "MSXML2.XmlHttp.2.0",  
-                    "Microsoft.XmlHttp"
-                ];
 
-                var xhr;
-                for(var i = 0; i < versions.length; i++) {  
-                    try {  
-                        xhr = new ActiveXObject(versions[i]);  
-                        break;  
-                    } catch (e) {
-                    }  
-                }
-                return xhr;
-            };
-
-            ajax.send = function(url, callback, method, data, sync) {
-                var x = ajax.x();
-                x.open(method, url, sync);
-                x.onreadystatechange = function() {
-                    if (x.readyState == 4) {
-                        callback(x.responseText)
-                    }
-                };
-                if (method == 'POST') {
-                    x.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-                }
-                x.send(data)
-            };
-
-            ajax.get = function(url, data, callback, sync) {
-                var query = [];
-                for (var key in data) {
-                    query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
-                }
-                ajax.send(url + '?' + query.join('&'), callback, 'GET', null, sync)
-            };
-
-            ajax.post = function(url, data, callback, sync) {
-                var query = [];
-                for (var key in data) {
-                    query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
-                }
-                ajax.send(url, callback, 'POST', query.join('&'), sync)
-            };
-        </script>
-        <script>
-        var guid = (function() {
-          function s4() {
-            return Math.floor((1 + Math.random()) * 0x10000)
-                       .toString(16)
-                       .substring(1);
-          }
-          return function() {
-            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-                   s4() + '-' + s4() + s4() + s4();
-          };
-        })();
-        </script>
-        <script>
-            // find template and compile it
+            // Elements
             var resultsPlaceholder = document.getElementById('results'),
                 spotiFrame = document.getElementById('spotiframe'),
                 queueBox = document.getElementById('queuebox'),
-                nowplayingBox = document.getElementById('nowplaying'),
-                playingCssClass = 'playing',
-                audioObject = null,
+
+                npArtist = document.getElementById('np_artist'),
+                npName = document.getElementById('np_name'),
+                npAlbum = document.getElementById('np_album'),
+                npAlbumArt = document.getElementById('np_albumart'),
+                npDuration = document.getElementById('np_duration'),
+                
                 clientUUID = guid(),
                 cookie = document.cookie;
 
@@ -100,8 +53,6 @@
             } else {
                 document.cookie = clientUUID;
             }
-
-            console.log('User id:' + cookie);
 
             var fetchTracks = function (albumId, callback) {
                 ajax.get(
@@ -121,10 +72,21 @@
 
             var playTrack = function (data) {
                 if(data && data.id) {
-                    var url = 'https://play.spotify.com/track/'+data.id;
-                    var spotiplayer=window.open(url,'spotiplayer');
+
+                    // Pop player in new tab
+                    var url = 'https://play.spotify.com/track/'+data.id/*,
+                        spotiplayer=window.open(url,'spotiplayer')*/;
+                    
+                    // Try to regain focus
                     window.focus();
-                    nowplaying.innerHTML = 'Nu spelas: ' + data.artists[0].name+' - '+data.name;
+
+                    // Update GUI
+                    npArtist.innerHTML = data.artists[0].name;
+                    npName.innerHTML = data.name;
+                    npAlbum.innerHTML = data.album.name;
+                    npAlbumArt.style.backgroundImage = "URL('"+data.album.images[1].url+"')";
+                    npDuration.innerHTML = new Date(data.duration_ms).toLocaleTimeString();
+                       
                 }
                 return false;
             };
@@ -145,8 +107,17 @@
                             var newElm = document.createElement("div");
                             newElm.id = curTrack.id;
                             newElm.data = JSON.stringify(curTrack);
-                            newElm.class = 'searchresult';
-                            newElm.innerHTML = curTrack.artists[0].name+' - '+curTrack.name;
+
+                            newElm.className = 'track searchresult';
+                            newElm.innerHTML = '<div class="tr_votes"> - </div>';
+                            newElm.innerHTML += '<div class="tr_albumart" style="background: URL('+curTrack.album.images[2].url+')"></div>';
+                            newElm.innerHTML += '<div class="tr_artist">'+curTrack.name+'</div>';
+                            newElm.innerHTML += '<div class="dash">-</div>';
+                            newElm.innerHTML += '<div class="tr_name">'+curTrack.artists[0].name+'</div>';
+                            newElm.innerHTML += '<div class="votes"><i class="vote fa fa-plus-circle"></i></div>';
+                            
+                            newElm.innerHTML += '<div class="clearfix"></div>';
+                            
                             newElm.addEventListener('click', voteTrack);
 
                             resultbox.appendChild(newElm);
@@ -177,8 +148,10 @@
             searchStringElm.addEventListener('keypress',function(e) {
                 if(e.keyCode===13) {
                     searchTracks(searchStringElm.value);
+                    searchStringElm.value = '';
                 }
             });
+
         </script>
         <script>
         io = io.connect()
@@ -202,8 +175,16 @@
                     var newElm = document.createElement("div");
                     newElm.id = curTrack.id;
                     newElm.data = JSON.stringify(curTrack);
-                    newElm.class = 'searchresult';
-                    newElm.innerHTML = '('+(curTrack.votes.length?curTrack.votes.length:0)+')'+curTrack.artists[0].name+' - '+curTrack.name;
+                    newElm.className = 'track';
+                    newElm.innerHTML = '<div class="tr_votes">'+curTrack.votes.length+'</div>';
+                    newElm.innerHTML += '<div class="tr_albumart" style="background: URL('+curTrack.album.images[2].url+')"></div>';
+                    newElm.innerHTML += '<div class="tr_artist">'+curTrack.name+'</div>';
+                    newElm.innerHTML += '<div class="dash">-</div>';
+                    newElm.innerHTML += '<div class="tr_name">'+curTrack.artists[0].name+'</div>';
+                    newElm.innerHTML += '<div class="votes"><i class="vote fa fa-arrow-circle-up"></i> <i class="vote fa fa-arrow-circle-down"></i></div>';
+                    
+                    newElm.innerHTML += '<div class="clearfix"></div>';
+
                     newElm.addEventListener('click', voteTrack);
 
                     queuebox.appendChild(newElm);
@@ -219,3 +200,4 @@
         </script>
     </body>
 </html>
+
