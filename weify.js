@@ -83,7 +83,7 @@ checkPlaying = function () {
 				// Reset last played
 				curRoom.tracks[nextTrack].lastplayed = Date.now();
 				curRoom.nowPlaying = curRoom.tracks[nextTrack];
-				app.io.room(room).broadcast('play',curRoom.nowPlaying);
+				app.io.room(room).broadcast('play',{track:curRoom.nowPlaying,time:false});
 				broadcastTracks(room);
 			}
 		}
@@ -164,7 +164,11 @@ app.io.route('ready', function(req) {
 	req.io.join(req.session.room);
     req.io.emit('tracks',rooms[req.session.room].tracks);
     if(rooms[req.session.room].isPlaying) {
-    	req.io.emit('play',rooms[req.session.room].nowPlaying);
+    	var startDuration = new Date((Date.now() - rooms[req.session.room].isPlaying)).toLocaleTimeString().split(":");
+    	startDuration = parseInt(startDuration[1],10) + ':' + startDuration[2];
+
+    	req.io.emit('play',{track:rooms[req.session.room].nowPlaying,time:startDuration});
+    	console.log(startDuration);
     }
 });
 

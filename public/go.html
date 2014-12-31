@@ -77,10 +77,15 @@
             };
 
             var playTrack = function (data) {
-                if(data && data.id) {
+                if(data && data.track.id) {
 
                     // Desktop player
-                    location.href='spotify:track:'+data.id;
+                    if(data.time!==false) {
+                        console.log('spotify:track:'+data.track.id+'#'+data.time);
+                        location.href='spotify:track:'+data.track.id+'#'+data.time;
+                    } else {
+                        location.href='spotify:track:'+data.track.id;
+                    }
 
 
                     /* ToDo: Use webplayer as fallback
@@ -93,11 +98,11 @@
                     window.focus();
 
                     // Update GUI
-                    npArtist.innerHTML = data.artists[0].name;
-                    npName.innerHTML = data.name;
-                    npAlbum.innerHTML = data.album.name;
-                    npAlbumArt.style.backgroundImage = "URL('"+data.album.images[1].url+"')";
-                    npDuration.innerHTML = new Date(data.duration_ms).toLocaleTimeString();
+                    npArtist.innerHTML = data.track.artists[0].name;
+                    npName.innerHTML = data.track.name;
+                    npAlbum.innerHTML = data.track.album.name;
+                    npAlbumArt.style.backgroundImage = "URL('"+data.track.album.images[1].url+"')";
+                    npDuration.innerHTML = new Date(data.track.duration_ms).toLocaleTimeString();
                        
                 }
                 return false;
