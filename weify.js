@@ -102,11 +102,14 @@ app.io.route('auth', function(req) {
 	req.session.room = req.data.room;
 
 	// Create room if it doesnt exist
-	if (rooms.indexOf(req.data.room) === -1) {
+	if (rooms[req.data.room] === undefined) {
+		console.log('creating',req.data.room);
 		rooms[req.data.room] = {};
 		rooms[req.data.room].tracks = {};
 		rooms[req.data.room].isPlaying = false;
 		rooms[req.data.room].nowPlaying = false;
+	} else {
+		console.log('existed ',req.data.room);
 	}
 	req.io.join(req.data.room);
 
@@ -164,7 +167,7 @@ app.io.route('ready', function(req) {
 	}
 
 	req.io.join(req.session.room);
-
+	console.log(req.session.username, 'joined', req.session.room, 'emitting', rooms[req.session.room].tracks);
     req.io.emit('tracks',rooms[req.session.room].tracks);
     if(rooms[req.session.room].isPlaying) {
     	req.io.emit('play',rooms[req.session.room].nowPlaying);
