@@ -86,9 +86,7 @@ checkPlaying = function () {
 				app.io.room(room).broadcast('play',curRoom.nowPlaying);
 				broadcastTracks(room);
 			}
-		}/* else if ( curRoom.isPlaying ) {
-			console.log( Math.floor(((curRoom.isPlaying + curRoom.nowPlaying.duration_ms + 1000) - Date.now()) / 1000) + ' s left til next song.');
-		} */
+		}
 			
 	}
 	setTimeout(checkPlaying,1000);
@@ -103,13 +101,10 @@ app.io.route('auth', function(req) {
 
 	// Create room if it doesnt exist
 	if (rooms[req.data.room] === undefined) {
-		console.log('creating',req.data.room);
 		rooms[req.data.room] = {};
 		rooms[req.data.room].tracks = {};
 		rooms[req.data.room].isPlaying = false;
 		rooms[req.data.room].nowPlaying = false;
-	} else {
-		console.log('existed ',req.data.room);
 	}
 	req.io.join(req.data.room);
 
@@ -167,7 +162,6 @@ app.io.route('ready', function(req) {
 	}
 
 	req.io.join(req.session.room);
-	console.log(req.session.username, 'joined', req.session.room, 'emitting', rooms[req.session.room].tracks);
     req.io.emit('tracks',rooms[req.session.room].tracks);
     if(rooms[req.session.room].isPlaying) {
     	req.io.emit('play',rooms[req.session.room].nowPlaying);
