@@ -3,6 +3,8 @@ body, html {
 	margin: 0px;
 	padding: 0px;
 	background-color: #121314;
+	width:100%;
+	height:100%;
 }
 
 * {
@@ -100,4 +102,52 @@ body, html {
 }
 .tr_artist, .tr_name {
 	float:left;
+}
+
+/* Login page */
+#login_wrapper {
+	width: 100%;
+	height: 100%;
+}
+#login_subwrapper {
+	position:relative;
+	top: 30%;
+	width:300px;
+	margin:auto;
+	text-align: center;
+}
+.logo {
+	font-size: 80px;
+}
+.logo i {
+	font-size: 75px;
+	color: #EEFF55;
+}
+#login_subwrapper .row {
+	text-align: center;
+	width:270px;
+	background-color: #232425;
+	border-radius:5px;
+	padding:3px;
+	padding-left:10px;
+	margin-right:10px;
+	margin-top:20px;
+	float:right;
+}
+#login_subwrapper .failed {
+	background-color: #772425;
+}
+#login_subwrapper .row i {
+	padding-right: 7px;
+}
+#login_subwrapper .row input {
+	background-color: #232425;
+	outline:none;
+	border: 0px none;
+	width:240px;
+	font-size: 20px;
+}
+
+#login_subwrapper .failed input {
+	background-color: #772425;
 }
