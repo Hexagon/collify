@@ -1,4 +1,4 @@
-var express = require('express.io'),
+var 	express = require('express.io'),
 	uuid = require('uuid'),
 	config = require('./config.json'),
 	app = express();
@@ -7,11 +7,11 @@ var express = require('express.io'),
 app.http().io();
 app.use(express.cookieParser());
 app.use(express.session({
-  cookie: {
-    maxAge: 36000000,
-    httpOnly: false
-  },
-  secret: config.server_secret
+	cookie: {
+		maxAge: 36000000,
+		httpOnly: false
+	},
+	secret: config.server_secret
 }));
 
 // Setup public folder
