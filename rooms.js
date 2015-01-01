@@ -1,10 +1,10 @@
-var rooms = [],
+var 	rooms = [],
 	server = require('./server.js');
 
 sortTracks = function (room) {
 
 	// Order tracks
-	var srcTracks = JSON.parse(JSON.stringify(rooms[room].tracks)),
+	var 	srcTracks = JSON.parse(JSON.stringify(rooms[room].tracks)),
 		dstTracks = {},
 		nextTrack;
 
@@ -19,13 +19,13 @@ sortTracks = function (room) {
 
 doBroadcastTracks = function (room) {
 	sortTracks(room);
-    server.io.room(room).broadcast('tracks',rooms[room].tracks);
+	server.io.room(room).broadcast('tracks',rooms[room].tracks);
 };
 
 nextTrackID = function (useTracks) {
 
 	// Find max amount of votes
-	var maxVotes = 0,
+	var 	maxVotes = 0,
 		minLastPlayed = Infinity,
 		nextTrack = false,
 		curTrack;
@@ -50,12 +50,12 @@ nextTrackID = function (useTracks) {
 };
 
 checkPlaying = function () {
-	for(room in rooms) {
-		var curRoom = rooms[room],
+	for (room in rooms) {
+		var 	curRoom = rooms[room],
 			nextTrack;
-		if(!curRoom.isPlaying || (curRoom.isPlaying && Date.now() > curRoom.isPlaying + curRoom.nowPlaying.duration_ms + 5000)) {
+		if (!curRoom.isPlaying || (curRoom.isPlaying && Date.now() > curRoom.isPlaying + curRoom.nowPlaying.duration_ms + 5000)) {
 			nextTrack = nextTrackID(curRoom.tracks);
-			if(nextTrack) {
+			if (nextTrack) {
 				curRoom.isPlaying = Date.now();
 				// Reset votes
 				curRoom.tracks[nextTrack].votes = new Array();
@@ -67,7 +67,6 @@ checkPlaying = function () {
 				doBroadcastTracks(room);
 			}
 		}
-			
 	}
 	setTimeout(checkPlaying,1000);
 };
@@ -93,13 +92,13 @@ module.exports = {
 		}
 	},
 	voteTrack: function (room, user, track) {
-	    if(rooms[room].tracks[track.id]===undefined) {
-	    	rooms[room].tracks[track.id]=track;
-	    	rooms[room].tracks[track.id].votes = new Array();
-	    	rooms[room].tracks[track.id].downvotes = new Array();
-	    }
+		if (rooms[room].tracks[track.id]===undefined) {
+			rooms[room].tracks[track.id]=track;
+			rooms[room].tracks[track.id].votes = new Array();
+			rooms[room].tracks[track.id].downvotes = new Array();
+		}
 
-		if(rooms[room].tracks[track.id].votes.indexOf(user) === -1) {
+		if (rooms[room].tracks[track.id].votes.indexOf(user) === -1) {
 			if(rooms[room].tracks[track.id].votes.length===0) {
 				rooms[room].tracks[track.id].firstvote = Date.now();
 				rooms[room].tracks[track.id].lastplayed = 0;
@@ -108,7 +107,7 @@ module.exports = {
 		}
 	},
 	voteDownTrack: function (room, user, id) {
-		if(rooms[room].tracks[id].downvotes.indexOf(user) === -1) {
+		if (rooms[room].tracks[id].downvotes.indexOf(user) === -1) {
 			rooms[room].tracks[id].downvotes.push(user);
 		}
 	},
