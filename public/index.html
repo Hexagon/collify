@@ -2,14 +2,19 @@
 <html>
     <head>
         <title>Weify Alpha</title>
+
         <meta charset="UTF-8">
+
         <script src="/socket.io/socket.io.js"></script>
-        <link href='http://fonts.googleapis.com/css?family=Titillium+Web:200,300,400' rel='stylesheet' type='text/css'>
+
+        <link href="http://fonts.googleapis.com/css?family=Titillium+Web:200,300,400" rel="stylesheet" type="text/css">
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="css/main.css">
+
+        <link href="css/main.css" rel="stylesheet">
     </head>
     <body>
-        <div id="login_wrapper">
+
+        <div id="scene_login" class="scene">
             <div id="login_subwrapper">
                 <div class="logo"><i class="fa fa-play-circle-o"></i> weify</div>
                 <div class="row" id="auth">
@@ -18,38 +23,51 @@
                 </div>
             </div>
         </div>
+
+        <div id="scene_room" class="scene">
+            <div id="nowplaying">
+                <div id="np_albumart"></div>
+                <div id="np_album"></div>
+                <div id="np_artist"></div>
+                <div class="dash"> - </div>
+                <div id="np_name"></div>
+                <div id="np_duration"></div>
+                <div class="clearfix"></div>
+            </div>
+            <div>
+                <div id="searchbox">
+                    <i class="fa fa-search"></i>
+                    <input id="searchstring">
+                </div>
+                <h3>Current queue</h3>
+            </div>
+            <div id="resultbox"></div>
+            <div id="queuebox"></div>
+        </div>
+
+        <script src="js/helpers/guid.js"></script>
+        <script src="js/helpers/ajax.js"></script>
+        <script src="js/scenes.js"></script>
+
         <script>
-        io = io.connect();
 
-        io.on('accepted', function() {
-            location.href='go.html';
-        });
-
-        var alias = document.getElementById('alias'),
-            auth = document.getElementById('auth');
-        alias.addEventListener('focus', function() {
-            alias.value='';
-        });
-        alias.addEventListener('keypress', function(evt) {
-            // Check format
-            if (evt.keyCode===13) {
-                var parts = alias.value.split('@');
-                if (parts.length == 2) {
-                    var username = parts[0].trim(),
-                        room = parts[1].trim();
-                    if (username.length>0 && room.length>0) {
-
-                        io.emit('auth',{username:username,room:room});
-                        return true;
-
-                    } 
-                }
-                // Color failed
-                auth.className='row failed';
+            // Session
+            var clientUUID = guid(),
+                cookie = document.cookie;
+            if (cookie) { 
+                clientUUID = cookie;
+            } else {
+                document.cookie = clientUUID;
             }
-        });
+
+            // Set up websockets
+            io = io.connect(); io.emit('ready');
 
         </script>
+
+        <script src="js/scenes/login.js"></script>
+        <script src="js/scenes/room.js"></script>
+        
     </body>
 </html>
 

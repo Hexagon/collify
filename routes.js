@@ -49,17 +49,24 @@ var routes = {
 		if (!sessionOk(req)) {
 			req.io.emit('denied');
 			return false;
-		}
-		req.io.join(req.session.room);
-		rooms.broadcastTracks(req.session.room);
+		} else {
+			req.io.join(req.session.room);
 
-		curRoom = rooms.get(req.session.room);
-		if (curRoom.isPlaying) {
-			var startDuration = new Date((Date.now() - curRoom.isPlaying)).toLocaleTimeString().split(":");
-			startDuration = parseInt(startDuration[1],10) + ':' + startDuration[2];
+			req.io.emit('accepted');
 
-			req.io.emit('play',{track:curRoom.nowPlaying,time:startDuration});
-			console.log(startDuration);
+			rooms.broadcastTracks(req.session.room);
+			
+			curRoom = rooms.get(req.session.room);
+
+			if (curRoom.isPlaying) {
+				var startDuration = new Date((Date.now() - curRoom.isPlaying)).toLocaleTimeString().split(":");
+				startDuration = parseInt(startDuration[1],10) + ':' + startDuration[2];
+
+				req.io.emit('play',{track:curRoom.nowPlaying,time:startDuration});
+				console.log(startDuration);
+			}
+		
 		}
+
 	}
 }; module.exports = routes;
