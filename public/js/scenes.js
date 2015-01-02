@@ -1,15 +1,27 @@
 var sceneRoom = document.getElementById('scene_room'),
-	sceneLogin = document.getElementById('scene_login');
+	sceneJoin = document.getElementById('scene_join'),
+	sceneAuth = document.getElementById('scene_auth');
 
-var showLogin = function() {
+var hideAll = function () {
     sceneRoom.style.display = 'none';
-    sceneLogin.style.display = 'block';
+    sceneJoin.style.display = 'none';
+    sceneAuth.style.display = 'none';
+};
+
+var showAuth = function() {
+	hideAll();
+    sceneAuth.style.display = 'block';
+};
+
+var showJoin = function() {
+    hideAll();
+    sceneJoin.style.display = 'block';
 };
 
 var showRoom = function() {
+	hideAll();
     sceneRoom.style.display = 'block';
-    sceneLogin.style.display = 'none';
 };
 
 // Show default scene
-showLogin();
+showAuth();

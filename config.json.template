@@ -2,5 +2,6 @@
 	"werver_port":7076,
 	"server_secret":"WhamBlamWeifySlam12351",
 	"spotify_api_client_id":"",
-	"spotify_api_client_secret":""
+	"spotify_api_client_secret":"",
+	"spotify_api_redirect_uri":"http://localhost:7076/callback"
 }

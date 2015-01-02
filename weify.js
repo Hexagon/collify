@@ -1,4 +1,5 @@
-var 	server = require('./server.js'),
+var server = require('./server.js'),
+	spotify = require('./spotify.js'),
 	routes = require('./routes.js'),
 	rooms = require('./rooms.js');
 
@@ -28,7 +29,7 @@ var 	server = require('./server.js'),
 // ...
 // ------------------------------------------------------------------------------------------
 
-server.io.route('auth', 	function(req) 	{ routes.auth(req); 	});
+server.io.route('join', 	function(req) 	{ routes.join(req); 	});
 server.io.route('vote', 	function(req) 	{ routes.vote(req); 	});
 server.io.route('votedown',	function(req) 	{ routes.voteDown(req);	});
 server.io.route('ready', 	function(req) 	{ routes.ready(req); 	});

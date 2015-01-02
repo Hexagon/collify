@@ -1,4 +1,4 @@
-<!doctype HTML>
+<!DOCTYPE HTML>
 <html>
     <head>
         <title>Weify Alpha</title>
@@ -14,17 +14,24 @@
     </head>
     <body>
 
-        <div id="scene_login" class="scene">
-            <div id="login_subwrapper">
+        <div id="scene_auth">
+            <div class="subwrapper">
                 <div class="logo"><i class="fa fa-play-circle-o"></i> weify</div>
-                <div class="row" id="auth">
+                <div class="row" id="auth">Log in with Spotify</div>
+            </div>
+        </div>
+
+        <div id="scene_join">
+            <div class="subwrapper">
+                <div class="logo"><i class="fa fa-play-circle-o"></i> weify</div>
+                <div class="row" id="join">
                     <i class="fa fa-user"></i>
-                    <input id="alias" value="Nick@Room">
+                    <input id="alias" value="Room name">
                 </div>
             </div>
         </div>
 
-        <div id="scene_room" class="scene">
+        <div id="scene_room">
             <div id="nowplaying">
                 <div id="np_albumart"></div>
                 <div id="np_album"></div>
@@ -45,29 +52,14 @@
             <div id="queuebox"></div>
         </div>
 
-        <script src="js/helpers/guid.js"></script>
         <script src="js/helpers/ajax.js"></script>
         <script src="js/scenes.js"></script>
 
-        <script>
+        <script> io = io.connect(); io.emit('ready'); </script>
 
-            // Session
-            var clientUUID = guid(),
-                cookie = document.cookie;
-            if (cookie) { 
-                clientUUID = cookie;
-            } else {
-                document.cookie = clientUUID;
-            }
-
-            // Set up websockets
-            io = io.connect(); io.emit('ready');
-
-        </script>
-
-        <script src="js/scenes/login.js"></script>
+        <script src="js/scenes/auth.js"></script>
+        <script src="js/scenes/join.js"></script>
         <script src="js/scenes/room.js"></script>
-        
+
     </body>
 </html>
-

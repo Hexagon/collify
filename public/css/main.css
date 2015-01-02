@@ -105,11 +105,15 @@ body, html {
 }
 
 /* Login page */
+#scene_auth {
+	width: 100%;
+	height: 100%;
+}
 #scene_login {
 	width: 100%;
 	height: 100%;
 }
-#login_subwrapper {
+.subwrapper {
 	position:relative;
 	top: 30%;
 	width:300px;
@@ -123,7 +127,7 @@ body, html {
 	font-size: 75px;
 	color: #EEFF55;
 }
-#login_subwrapper .row {
+.subwrapper .row {
 	text-align: center;
 	width:270px;
 	background-color: #232425;
@@ -134,13 +138,13 @@ body, html {
 	margin-top:20px;
 	float:right;
 }
-#login_subwrapper .failed {
+.subwrapper .failed {
 	background-color: #772425;
 }
-#login_subwrapper .row i {
+.subwrapper .row i {
 	padding-right: 7px;
 }
-#login_subwrapper .row input {
+.subwrapper .row input {
 	background-color: #232425;
 	outline:none;
 	border: 0px none;
@@ -148,6 +152,6 @@ body, html {
 	font-size: 20px;
 }
 
-#login_subwrapper .failed input {
+.subwrapper .failed input {
 	background-color: #772425;
 }

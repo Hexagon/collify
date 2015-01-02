@@ -2,7 +2,15 @@ var 	uuid = require('uuid'),
 	rooms = require('./rooms.js');
 
 sessionOk = function (request) {
-	if (request.session.uuid && request.session.name && request.session.room) {
+	if (request.session.uuid && request.session.name) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+roomOk = function (request) {
+	if (sessionOk(request) && request.session.room) {
 		return true;
 	} else {
 		return false;
@@ -10,11 +18,11 @@ sessionOk = function (request) {
 }
 
 var routes = {
-	auth: function (req) {
-		// We don't want the uuid to change on logout, to prevent double votes
-		req.session.uuid = uuid.v4();
-		req.session.name = req.data.username;
-		req.session.room = req.data.room;
+	join: function (req) {
+		if (!sessionOk(req)) {
+			req.io.emit('denied');
+			return false;
+		}
 
 		// Create room if it doesnt exist
 		if (!rooms.exists(req.data.room)) {
@@ -23,12 +31,14 @@ var routes = {
 
 		req.io.join(req.data.room);
 
+		// Update session
+		req.session.room = req.data.room;
 		req.session.save(function() {
-			req.io.emit('accepted');
+			req.io.emit('joined', req.data.room);
 		});
 	},
 	vote: function (req) {
-		if (!sessionOk(req)) {
+		if (!roomOk(req)) {
 			req.io.emit('denied');
 			return false;
 		}
@@ -36,7 +46,7 @@ var routes = {
 		rooms.broadcastTracks(req.session.room);
 	},
 	voteDown: function (req) {
-		if (!sessionOk(req)) {
+		if (!roomOk(req)) {
 			req.io.emit('denied');
 			return false;
 		}
@@ -45,19 +55,17 @@ var routes = {
 	},
 	ready: function (req) {
 		var room;
-
 		if (!sessionOk(req)) {
 			req.io.emit('denied');
 			return false;
+		}if (!roomOk(req)) {
+			req.io.emit('authenticated',req.session.body);
+			return false;
 		} else {
 			req.io.join(req.session.room);
-
-			req.io.emit('accepted');
-
+			req.io.emit('joined',req.session.room);
 			rooms.broadcastTracks(req.session.room);
-			
 			curRoom = rooms.get(req.session.room);
-
 			if (curRoom.isPlaying) {
 				var startDuration = new Date((Date.now() - curRoom.isPlaying)).toLocaleTimeString().split(":");
 				startDuration = parseInt(startDuration[1],10) + ':' + startDuration[2];

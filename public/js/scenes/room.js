@@ -23,13 +23,13 @@ var fetchTracks = function (albumId, callback) {
 
 var voteUpTrack = function (target) {
     var track = JSON.parse(target.target.data);
-    io.emit('vote',{user: clientUUID, data: track});
+    io.emit('vote',{data: track});
     resultbox.innerHTML = '';
 };
 
 var voteDownTrack = function (target) {
     var track = JSON.parse(target.target.data);
-    io.emit('votedown',{user: clientUUID, data: track});
+    io.emit('votedown',{data: track});
     resultbox.innerHTML = '';
 };
 
