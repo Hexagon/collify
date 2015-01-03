@@ -34,22 +34,37 @@
         <div id="scene_room">
             <div id="nowplaying">
                 <div id="np_albumart"></div>
-                <div id="np_album"></div>
-                <div id="np_artist"></div>
+                <div id="np_album">Queue empty</div>
+                <div id="np_artist">Waiting for first vote</div>
                 <div class="dash"> - </div>
                 <div id="np_name"></div>
                 <div id="np_duration"></div>
                 <div class="clearfix"></div>
             </div>
-            <div>
-                <div id="searchbox">
-                    <i class="fa fa-search"></i>
-                    <input id="searchstring">
+            <div class="left_col">
+                <div>
+                    <div id="searchbox">
+                        <i class="fa fa-search"></i>
+                        <input id="searchstring">
+                    </div>
+                    <h3>Current queue</h3>
                 </div>
-                <h3>Current queue</h3>
+                <div id="resultbox"></div>
+                <div id="queuebox"></div>
             </div>
-            <div id="resultbox"></div>
-            <div id="queuebox"></div>
+            <div class="right_col">
+                <h3>Participants</h3>
+                <div id="participants"></div>
+
+                <h3>Chat</h3>
+                <div id="chat">
+                    <i class="fa fa-pencil-square-o"></i>   
+                    <input id="message">
+                </div>
+                <div id="history">
+
+                </div>
+            </div>
         </div>
 
         <script src="js/helpers/ajax.js"></script>

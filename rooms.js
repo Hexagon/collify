@@ -22,6 +22,10 @@ doBroadcastTracks = function (room) {
 	server.io.room(room).broadcast('tracks',rooms[room].tracks);
 };
 
+broadcastUsers = function (room) {
+	server.io.room(room).broadcast('users',rooms[room].users);
+};
+
 nextTrackID = function (useTracks) {
 
 	// Find max amount of votes
@@ -71,7 +75,7 @@ checkPlaying = function () {
 	setTimeout(checkPlaying,1000);
 };
 
-module.exports = {
+var m = {
 	exists: function (name) {
 		if (rooms[name] === undefined) {
 			return false;
@@ -83,6 +87,7 @@ module.exports = {
 		if (rooms[name] === undefined) {
 			rooms[name] = {
 				tracks: {},
+				users: {},
 				isPlaying: false,
 				nowPlaying: false
 			};
@@ -91,9 +96,31 @@ module.exports = {
 			return false;
 		}
 	},
+	join: function (room,body) {
+		rooms[room].users[body.id] = {
+			id: body.id,
+			images: body.images,
+			display_name: body.display_name
+		};
+		broadcastUsers(room);
+	},
+	leave: function (room,body) {
+		delete rooms[room].users[body.id];
+		broadcastUsers(room);
+	},
 	voteTrack: function (room, user, track) {
 		if (rooms[room].tracks[track.id]===undefined) {
-			rooms[room].tracks[track.id]=track;
+
+			rooms[room].tracks[track.id]={
+				id: track.id,
+				name: track.name,
+				album: {
+					images: track.album.images,
+					name: track.album.name
+				},
+				artists: track.artists
+			};
+			console.log(rooms[room].tracks[track.id]);
 			rooms[room].tracks[track.id].votes = new Array();
 			rooms[room].tracks[track.id].downvotes = new Array();
 		}
@@ -117,7 +144,19 @@ module.exports = {
 	broadcastTracks: function (room) {
 		doBroadcastTracks(room);
 	},
+	sendTracks: function (req) {
+		req.io.emit('tracks',rooms[req.session.room].tracks);
+	},
 	startCheckLoop: function() {
 		checkPlaying();
+	},
+	sendMessage: function(req) {
+		server.io.room(req.session.room).broadcast('message',{user:req.session.body,message:req.data});
 	}
 };
+
+server.disconnectEvent = function(room,body) {
+	m.leave(room,body);
+};
+
+module.exports = m;

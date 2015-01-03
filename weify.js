@@ -15,17 +15,14 @@ var server = require('./server.js'),
 //   config.json	=	Configuration of Spotify API keys, server port, server secret
 // ------------------------------------------------------------------------------------------
 
-// ToDo
+// ToDo | [ ] = Free to grab, [X] = Work in progress
 // ------------------------------------------------------------------------------------------
-// [ ] 	OAuth of users, nice example available at 
-//	https://github.com/spotify/web-api-auth-examples
-// [ ] 	Simple chat
+// [ ]  Cleanup of user body
 // [ ] 	Room top list
 // [ ] 	Persistent data store, currently all rooms/votes/data are stored in memory 
 //	(javascript objects). Which kind of sucks in event of a server restart.
 // [ ]	Use spotify api to save current room queue as a playlist
 // [ ]	Display which users have voted (up AND down) a song
-// [ ]	Cleanup of front end, current setup is mostly a POC
 // ...
 // ------------------------------------------------------------------------------------------
 
@@ -33,6 +30,7 @@ server.io.route('join', 	function(req) 	{ routes.join(req); 	});
 server.io.route('vote', 	function(req) 	{ routes.vote(req); 	});
 server.io.route('votedown',	function(req) 	{ routes.voteDown(req);	});
 server.io.route('ready', 	function(req) 	{ routes.ready(req); 	});
+server.io.route('message', 	function(req) 	{ routes.message(req); 	});
 
 // Start playing
 rooms.startCheckLoop();

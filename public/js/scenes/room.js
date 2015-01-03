@@ -8,8 +8,15 @@ var resultsPlaceholder = document.getElementById('results'),
     npAlbumArt = document.getElementById('np_albumart'),
     npDuration = document.getElementById('np_duration'),
 
+    participants = document.getElementById('participants'),
+
     searchStringElm = document.getElementById('searchstring'),
-    searchString;
+    message = document.getElementById('message'),
+    historyContainer = document.getElementById('history'),
+
+    searchString,
+    users = {},
+    messages = [];
 
 var fetchTracks = function (albumId, callback) {
     ajax.get(
@@ -38,7 +45,6 @@ var playTrack = function (data) {
 
         // Desktop player
         if(data.time!==false) {
-            console.log('spotify:track:'+data.track.id+'#'+data.time);
             location.href='spotify:track:'+data.track.id+'#'+data.time;
         } else {
             location.href='spotify:track:'+data.track.id;
@@ -73,7 +79,6 @@ var processSearchResult = function (response) {
     resultbox.innerHTML = '';
 
     if(obj = JSON.parse(response)) {
-        console.log(obj);
         if(obj.tracks && obj.tracks.items.length > 0 ) {
             for(track in obj.tracks.items) {
                 curTrack = obj.tracks.items[track];
@@ -128,8 +133,94 @@ searchStringElm.addEventListener('keypress',function(e) {
     }
 });
 
+message.addEventListener('keypress',function(e) {
+    if(e.keyCode===13 && message.value.length > 0) {
+        io.emit('message',message.value);
+        message.value = '';
+    }
+});
+
 io.on('play', function(data) {
    playTrack(data);
+});
+
+io.on('users', function(data) {
+    
+    users = data;
+
+    participants.innerHTML = '';
+
+    if(data) {
+        for(user in data) {
+            var curUser= data[user];
+            var parElement = document.createElement("div");
+            parElement.className = "participant";
+            if (curUser.images.length>2) {
+                parElement.style.background = 'URL('+curUser.images[2].url+')';
+            } else {
+                var userElement = document.createElement("i");
+                userElement.className = "fa fa-user";
+                parElement.appendChild(userElement);
+            }
+            parElement.setAttribute("title",curUser.display_name ? curUser.display_name : curUser.id);
+            participants.appendChild(parElement);
+
+        }
+    } else {
+        // Should really not happen
+    }
+    
+    var clearFixElement = document.createElement("div");
+    clearFixElement.className = "clearfix";
+    participants.appendChild(clearFixElement);
+
+}),
+
+io.on('message', function(data) {
+
+    // Update stack
+    messages.push(data);
+    if (messages.length>15) {
+        messages.shift();
+    }
+
+    historyContainer.innerHTML = '';
+
+    // Update interface
+    for (var idx=messages.length-1;idx>=0;idx--) {
+        var curMessage = messages[idx];
+        var curUser = curMessage.user;
+
+        // Create .message container
+        var msgElement = document.createElement("div");
+        msgElement.className="msg_wrapper"
+
+        // Create participant image
+        var parElement = document.createElement("div");
+        parElement.className = "msg_participant";
+        if (curUser.images.length>2) {
+            parElement.style.background = 'URL('+curUser.images[2].url+')';
+        } else {
+            var userElement = document.createElement("i");
+            userElement.className = "fa fa-user";
+            parElement.appendChild(userElement);
+        }
+        parElement.setAttribute("title",curUser.display_name ? curUser.display_name : curUser.id);
+        msgElement.appendChild(parElement);
+
+        var msgContentElement = document.createElement("div");
+        msgContentElement.className = "msg_content";
+        msgContentElement.innerHTML = curMessage.message;
+        msgElement.appendChild(msgContentElement);
+
+        var clearFixElement = document.createElement("div");
+        clearFixElement.className = "clearfix";
+        msgElement.appendChild(clearFixElement);
+    
+        historyContainer.appendChild(msgElement);
+
+    }
+
 });
 
 io.on('tracks', function(data) {

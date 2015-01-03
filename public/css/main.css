@@ -155,3 +155,71 @@ body, html {
 .subwrapper .failed input {
 	background-color: #772425;
 }
+
+.left_col {
+	width:60%;
+	float:left;
+}
+.right_col {
+	width:calc( 40% - 41px );
+	margin-left:20px;
+	padding-left:20px;
+	border-left: 1px solid #232425;
+	float:left;
+}
+.participant {
+	width:48px;
+	height:48px;
+	display:block;
+	float:left;
+	background: #637425;
+	border-radius: 3px;
+	font-size: 32px;
+	text-align: center;
+}
+.participant .fa-user {
+	color: #121314;	
+}
+/* CHAT */
+#chat {
+	width:calc(100% - 10px);
+	background-color: #232425;
+	border-radius:5px;
+	float:right;
+	padding:4px;
+	padding-left:10px;
+	margin-bottom:7px;
+
+}
+#message {
+	border: 0px none;
+	padding: 2px;
+	background-color: #232425;
+	outline: none;
+	width: calc(100% - 27px);
+}
+.msg_wrapper {
+	border-bottom: 1px solid #222324;
+	padding-top:3px;
+	padding-bottom:3px;
+	clear:both;
+}
+.msg_participant {
+	width:32px;
+	height:32px;
+	float:left;
+	margin-right: 5px;
+	border-radius: 3px;
+	font-size: 24px;
+	line-height:32px;
+	text-align: center;
+	background: #637425;
+}
+.msg_participant .fa-user {
+	color: #121314;	
+}
+.msg_content {
+	float:left;
+	width: calc(100% - 40px);
+	font-size:13px;
+}

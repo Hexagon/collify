@@ -17,25 +17,33 @@ roomOk = function (request) {
 	}
 }
 
+joinRoom = function (req, room) {
+
+		// Create room if it doesnt exist
+		if (!rooms.exists(room)) {
+			rooms.create(room);
+		}
+
+		// Connect socket to room
+		req.io.join(room);
+
+		// Update session
+		req.session.room = room;
+		req.session.save(function() {
+			req.io.emit('joined', room);
+		});
+
+		// Add user
+		rooms.join(room,req.session.body);
+}
+
 var routes = {
 	join: function (req) {
 		if (!sessionOk(req)) {
 			req.io.emit('denied');
 			return false;
 		}
-
-		// Create room if it doesnt exist
-		if (!rooms.exists(req.data.room)) {
-			rooms.create(req.data.room);
-		}
-
-		req.io.join(req.data.room);
-
-		// Update session
-		req.session.room = req.data.room;
-		req.session.save(function() {
-			req.io.emit('joined', req.data.room);
-		});
+		joinRoom(req, req.data.room);
 	},
 	vote: function (req) {
 		if (!roomOk(req)) {
@@ -62,19 +70,24 @@ var routes = {
 			req.io.emit('authenticated',req.session.body);
 			return false;
 		} else {
-			req.io.join(req.session.room);
-			req.io.emit('joined',req.session.room);
-			rooms.broadcastTracks(req.session.room);
+			joinRoom(req, req.session.room);
+			rooms.sendTracks(req);
 			curRoom = rooms.get(req.session.room);
 			if (curRoom.isPlaying) {
 				var startDuration = new Date((Date.now() - curRoom.isPlaying)).toLocaleTimeString().split(":");
 				startDuration = parseInt(startDuration[1],10) + ':' + startDuration[2];
-
 				req.io.emit('play',{track:curRoom.nowPlaying,time:startDuration});
 				console.log(startDuration);
 			}
 		
 		}
-
+	},
+	message: function (req) {
+		if (!roomOk(req)) {
+			req.io.emit('denied',req.session.body);
+			return false;
+		} else {
+			rooms.sendMessage(req);
+		}
 	}
 }; module.exports = routes;
