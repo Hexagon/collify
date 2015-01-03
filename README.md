@@ -13,3 +13,4 @@ WIP POC spotify group/collaborative listening.
   
   # browse to localhost:7076
   
+"Documentation" and ToDo available in weify.js

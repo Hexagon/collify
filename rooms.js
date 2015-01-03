@@ -57,7 +57,7 @@ checkPlaying = function () {
 	for (room in rooms) {
 		var 	curRoom = rooms[room],
 			nextTrack;
-		if (!curRoom.isPlaying || (curRoom.isPlaying && Date.now() > curRoom.isPlaying + curRoom.nowPlaying.duration_ms + 5000)) {
+		if (!curRoom.isPlaying || (curRoom.isPlaying && Date.now() > curRoom.isPlaying + curRoom.nowPlaying.duration_ms + 500)) {
 			nextTrack = nextTrackID(curRoom.tracks);
 			if (nextTrack) {
 				curRoom.isPlaying = Date.now();
@@ -114,13 +114,13 @@ var m = {
 			rooms[room].tracks[track.id]={
 				id: track.id,
 				name: track.name,
+				duration_ms: track.duration_ms,
 				album: {
 					images: track.album.images,
 					name: track.album.name
 				},
 				artists: track.artists
 			};
-			console.log(rooms[room].tracks[track.id]);
 			rooms[room].tracks[track.id].votes = new Array();
 			rooms[room].tracks[track.id].downvotes = new Array();
 		}

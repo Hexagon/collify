@@ -77,7 +77,6 @@ var routes = {
 				var startDuration = new Date((Date.now() - curRoom.isPlaying)).toLocaleTimeString().split(":");
 				startDuration = parseInt(startDuration[1],10) + ':' + startDuration[2];
 				req.io.emit('play',{track:curRoom.nowPlaying,time:startDuration});
-				console.log(startDuration);
 			}
 		
 		}
