@@ -30,7 +30,7 @@ body, html {
 	display:block;
 	width: 128px;
 	height: 128px;
-	background-size: 128px 128px;
+	background-size: 128px 128px !important;
 	float:left;
 	margin-right:10px;
 }
@@ -97,6 +97,7 @@ body, html {
 .tr_albumart {
 	width:32px;
 	height:32px;
+	background-size: 32px 32px !important;
 	float:left;
 	margin-right: 5px;
 	border-radius: 3px;
@@ -182,6 +183,7 @@ body, html {
 .participant {
 	width:48px;
 	height:48px;
+	background-size: 48px 48px !important;
 	display:block;
 	float:left;
 	background: #637425;
@@ -220,6 +222,7 @@ body, html {
 .msg_participant {
 	width:32px;
 	height:32px;
+	background-size: 32px 32px !important;
 	float:left;
 	margin-right: 5px;
 	border-radius: 3px;

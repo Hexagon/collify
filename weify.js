@@ -23,6 +23,8 @@ var server = require('./server.js'),
 //	(javascript objects). Which kind of sucks in event of a server restart.
 // [ ]	Use spotify api to save current room queue as a playlist
 // [ ]	Display which users have voted (up AND down) a song
+// [ ]  Facebook images does not show
+// [ ]  Nice progress bar, see the refresh function i room.js
 // ...
 // ------------------------------------------------------------------------------------------
 

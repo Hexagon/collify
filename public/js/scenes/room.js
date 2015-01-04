@@ -29,9 +29,9 @@ var resultsPlaceholder = document.getElementById('results'),
 
 var refresh = function () {
     if (nowPlaying) {
-        console.log(nowPlaying);
         var prc = Math.round((Date.now() - nowPlaying.started) / nowPlaying.track.duration_ms*100);
-        console.log('Elapsed: ' + prc + '%');
+        // ToDo: Nice progress bar
+        // Elapsed time (0-100) is available in the prc variable, this is updated once a second
     }
     setTimeout(refresh,1000);
 }; refresh();
@@ -60,7 +60,6 @@ var voteDownTrack = function (target) {
 
 var changeTrack = function () {
 
-
         // WORKAROUND START: Change track in desktop player ---------------------------
         var url,w;
         if(nowPlaying.time!==false) {
@@ -68,17 +67,24 @@ var changeTrack = function () {
         } else {
             url='spotify:track:'+nowPlaying.track.id;
         }
+
+        // Try to open window
         w=window.open('', '', 'width=200,height=30');
-        w.document.write('<div>Weify changing track...</div><script>window.location.href=\''+url+'\';</script>');
-        // Needed for chrome and safari
-        w.document.close();
 
         // Show warning if popups are blocked
-        if (w) {
+        if (w && w.document) {
+            // Popups not blocked
+
+            w.document.write('<div>Weify changing track...</div><script>window.location.href=\''+url+'\';</script>');
+            // Needed for chrome and safari
+            w.document.close();
             hidePopupBlockerWarning();
             setTimeout(function() { w.close(); },1500);
         } else {
+            // Popups blocked
             showPopupBlockerWarning();
+            // Use workaround
+            location.href = url;
         }
         // WORKAROUND END ------------------------------------------------------------
 
@@ -90,7 +96,7 @@ var showPopupBlockerWarning = function (url) {
 
 var hidePopupBlockerWarning = function (url) {
     popup_warning.style.display = 'none';
-};
+}; hidePopupBlockerWarning();
 
 var playTrack = function (data) {
     if(data && data.track.id) {
@@ -103,12 +109,6 @@ var playTrack = function (data) {
 
         changeTrack(data);
 
-        /* ToDo: Use webplayer as fallback
-        // Web player
-        var url = 'https://play.spotify.com/track/'+data.id,
-            spotiplayer=window.open(url,'spotiplayer');
-        */
-
         // Try to regain focus
         window.focus();
 
@@ -117,7 +117,9 @@ var playTrack = function (data) {
         npName.innerHTML = data.track.name;
         npAlbum.innerHTML = data.track.album.name;
         npAlbumArt.style.backgroundImage = "URL('"+data.track.album.images[1].url+"')";
-        npDuration.innerHTML = new Date(data.track.duration_ms).toLocaleTimeString();
+
+        var durationString = new Date(data.track.duration_ms).toLocaleTimeString();
+        npDuration.innerHTML = durationString.substr(durationString.length - 5);
            
     }
     return false;
@@ -211,8 +213,8 @@ io.on('users', function(data) {
             var curUser= data[user];
             var parElement = document.createElement("div");
             parElement.className = "participant";
-            if (curUser.images.length>2) {
-                parElement.style.background = 'URL('+curUser.images[2].url+')';
+            if (curUser.images.length>0) {
+                parElement.style.background = 'URL('+curUser.images[0].url+')';
             } else {
                 var userElement = document.createElement("i");
                 userElement.className = "fa fa-user";
@@ -254,8 +256,8 @@ io.on('message', function(data) {
         // Create participant image
         var parElement = document.createElement("div");
         parElement.className = "msg_participant";
-        if (curUser.images.length>2) {
-            parElement.style.background = 'URL('+curUser.images[2].url+')';
+        if (curUser.images.length>0) {
+            parElement.style.background = 'URL('+curUser.images[0].url+')';
         } else {
             var userElement = document.createElement("i");
             userElement.className = "fa fa-user";
