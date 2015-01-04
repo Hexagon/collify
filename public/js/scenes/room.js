@@ -14,6 +14,10 @@ var resultsPlaceholder = document.getElementById('results'),
     message = document.getElementById('message'),
     historyContainer = document.getElementById('history'),
 
+    roomName = document.getElementById('room_name'),
+
+    leave = document.getElementById('leave'),
+
     searchString,
     users = {},
     messages = [];
@@ -90,7 +94,7 @@ var processSearchResult = function (response) {
                 clearFixElement.className = "clearfix";
 
                 var vuElement = document.createElement("i");
-                vuElement.className = "vote fa fa-plus-circle";
+                vuElement.className = "vote fa fa-plus-circle link mouseover ";
                 vuElement.data = JSON.stringify(curTrack);
                 vuElement.addEventListener('click', voteUpTrack);
 
@@ -138,6 +142,10 @@ message.addEventListener('keypress',function(e) {
         io.emit('message',message.value);
         message.value = '';
     }
+});
+
+leave.addEventListener('click',function(e) {
+    io.emit('leave');
 });
 
 io.on('play', function(data) {
@@ -237,12 +245,12 @@ io.on('tracks', function(data) {
             clearFixElement.className = "clearfix";
 
             var vuElement = document.createElement("i");
-            vuElement.className = "vote fa fa-arrow-circle-up";
+            vuElement.className = "vote fa fa-thumbs-up mouseover link";
             vuElement.data = JSON.stringify(curTrack);
             vuElement.addEventListener('click', voteUpTrack);
 
             var vdElement = document.createElement("i");
-            vdElement.className = "vote fa fa-arrow-circle-down";
+            vdElement.className = "vote fa fa-thumbs-down mouseover link";
             vdElement.data = JSON.stringify(curTrack);
             vdElement.addEventListener('click', voteDownTrack);
 
@@ -265,4 +273,19 @@ io.on('tracks', function(data) {
     } else {
         queuebox.innerHTML = 'NUL!';
     }
+});
+
+io.on('joined', function(data) {
+    // data == room name
+    // Set room name
+    roomName.innerHTML = data;
+
+    // Reset now playing
+    npArtist.innerHTML = '';
+    npName.innerHTML = 'Waiting for first vote';
+    npAlbum.innerHTML = 'Queue empty';
+    npAlbumArt.style.backgroundImage = "none";
+    npDuration.innerHTML = '';
+
+    showRoom();
 });

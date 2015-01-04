@@ -17,7 +17,7 @@ roomOk = function (request) {
 	}
 }
 
-joinRoom = function (req, room) {
+joinRoom = function (req, room, callback) {
 
 		// Create room if it doesnt exist
 		if (!rooms.exists(room)) {
@@ -31,6 +31,22 @@ joinRoom = function (req, room) {
 		req.session.room = room;
 		req.session.save(function() {
 			req.io.emit('joined', room);
+			if(callback !== undefined) callback();
+		});
+
+		// Add user
+		rooms.join(room,req.session.body);
+}
+
+leaveRoom = function (req, callback) {
+
+		// Leave room
+		req.io.leave(req.session.room);
+
+		// Update session
+		req.session.room = undefined;
+		req.session.save(function() {
+			if(callback !== undefined) callback();
 		});
 
 		// Add user
@@ -38,13 +54,6 @@ joinRoom = function (req, room) {
 }
 
 var routes = {
-	join: function (req) {
-		if (!sessionOk(req)) {
-			req.io.emit('denied');
-			return false;
-		}
-		joinRoom(req, req.data.room);
-	},
 	vote: function (req) {
 		if (!roomOk(req)) {
 			req.io.emit('denied');
@@ -62,23 +71,35 @@ var routes = {
 		rooms.broadcastTracks(req.session.room);
 	},
 	ready: function (req) {
+		if (!sessionOk(req)) {
+			req.io.emit('denied');
+			return false;
+		}if (!roomOk(req) && (req.data === undefined || (req.data && req.data.room === undefined))) {
+			req.io.emit('authenticated',req.session.body);
+			return false;
+		} else {
+			var room = req.session.room ? req.session.room : req.data.room;
+			room = room.toLowerCase();
+			joinRoom(req, room, function() {
+				rooms.sendTracks(req);
+				curRoom = rooms.get(room);
+				if (curRoom.isPlaying) {
+					var startDuration = new Date((Date.now() - curRoom.isPlaying)).toLocaleTimeString().split(":");
+					startDuration = parseInt(startDuration[1],10) + ':' + startDuration[2];
+					req.io.emit('play',{track:curRoom.nowPlaying,time:startDuration});
+				}
+			});
+		}
+	},
+	leave: function (req) {
 		var room;
 		if (!sessionOk(req)) {
 			req.io.emit('denied');
 			return false;
-		}if (!roomOk(req)) {
-			req.io.emit('authenticated',req.session.body);
-			return false;
 		} else {
-			joinRoom(req, req.session.room);
-			rooms.sendTracks(req);
-			curRoom = rooms.get(req.session.room);
-			if (curRoom.isPlaying) {
-				var startDuration = new Date((Date.now() - curRoom.isPlaying)).toLocaleTimeString().split(":");
-				startDuration = parseInt(startDuration[1],10) + ':' + startDuration[2];
-				req.io.emit('play',{track:curRoom.nowPlaying,time:startDuration});
-			}
-		
+			leaveRoom(req, function() {
+				req.io.emit('authenticated',req.session.body);
+			});
 		}
 	},
 	message: function (req) {
@@ -87,6 +108,14 @@ var routes = {
 			return false;
 		} else {
 			rooms.sendMessage(req);
+		}
+	},
+	topList: function (req) {
+		if (!sessionOk(req)) {
+			req.io.emit('denied',req.session.body);
+			return false;
+		} else {
+			rooms.sendToplist(req);
 		}
 	}
 }; module.exports = routes;

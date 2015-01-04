@@ -17,25 +17,32 @@
         <div id="scene_auth">
             <div class="subwrapper">
                 <div class="logo"><i class="fa fa-play-circle-o"></i> weify</div>
-                <div class="row" id="auth">Log in with Spotify</div>
+                <div class="row link mouseover" id="auth">Log in with Spotify</div>
             </div>
         </div>
 
         <div id="scene_join">
             <div class="subwrapper">
                 <div class="logo"><i class="fa fa-play-circle-o"></i> weify</div>
+                <div class="raw" id="authed"></div>
                 <div class="row" id="join">
                     <i class="fa fa-user"></i>
                     <input id="alias" value="Room name">
+                </div>
+                <div class="raw" id="rooms">
                 </div>
             </div>
         </div>
 
         <div id="scene_room">
+            <div id="header">
+                <div class="logo_small"><i class="fa fa-play-circle-o"></i> weify</div>
+                <div class="room link mouseover" id="leave"><i class="fa fa-sign-out"></i> Leave <span id="room_name">room</span></div>
+            </div>
             <div id="nowplaying">
                 <div id="np_albumart"></div>
-                <div id="np_album">Queue empty</div>
-                <div id="np_artist">Waiting for first vote</div>
+                <div id="np_album"></div>
+                <div id="np_artist"></div>
                 <div class="dash"> - </div>
                 <div id="np_name"></div>
                 <div id="np_duration"></div>

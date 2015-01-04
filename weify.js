@@ -26,11 +26,12 @@ var server = require('./server.js'),
 // ...
 // ------------------------------------------------------------------------------------------
 
-server.io.route('join', 	function(req) 	{ routes.join(req); 	});
 server.io.route('vote', 	function(req) 	{ routes.vote(req); 	});
 server.io.route('votedown',	function(req) 	{ routes.voteDown(req);	});
 server.io.route('ready', 	function(req) 	{ routes.ready(req); 	});
+server.io.route('leave', 	function(req) 	{ routes.leave(req); 	});
 server.io.route('message', 	function(req) 	{ routes.message(req); 	});
+server.io.route('toplist', 	function(req) 	{ routes.topList(req); 	});
 
 // Start playing
 rooms.startCheckLoop();

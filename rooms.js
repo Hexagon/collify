@@ -1,4 +1,4 @@
-var 	rooms = [],
+var 	rooms = {},
 	server = require('./server.js');
 
 sortTracks = function (room) {
@@ -24,6 +24,17 @@ doBroadcastTracks = function (room) {
 
 broadcastUsers = function (room) {
 	server.io.room(room).broadcast('users',rooms[room].users);
+};
+
+doSendToplist = function (req) {
+	var roomsArr = new Array();
+	for (var key in rooms) {
+		if (rooms.hasOwnProperty(key)) {
+			roomsArr.push({name: key, cnt: rooms[key].users.length ? rooms[key].users.length : 0});
+		}
+	} 
+	roomsArr.sort(function(a,b){return b.cnt - a.cnt});
+	req.io.emit('toplist',roomsArr.slice(0,5));
 };
 
 nextTrackID = function (useTracks) {
@@ -147,11 +158,14 @@ var m = {
 	sendTracks: function (req) {
 		req.io.emit('tracks',rooms[req.session.room].tracks);
 	},
-	startCheckLoop: function() {
+	startCheckLoop: function () {
 		checkPlaying();
 	},
-	sendMessage: function(req) {
+	sendMessage: function (req) {
 		server.io.room(req.session.room).broadcast('message',{user:req.session.body,message:req.data});
+	},
+	sendToplist: function (req) {
+		doSendToplist(req);
 	}
 };
 

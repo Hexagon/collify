@@ -18,7 +18,7 @@ body, html {
 }
 
 #scene_room {
-	padding:20px;
+	padding:1px;
 }
 
 /* NOW PLAYING */
@@ -75,10 +75,11 @@ body, html {
 	clear:both;
 }
 .vote {
-	font-size: 32px;
+	line-height:32px;
+	font-size: 22px;
 	color: #555657;
 	float: right;
-	margin-left:5px;
+	margin-right:15px;
 }
 .tr_votes {
 	width:32px;
@@ -138,6 +139,15 @@ body, html {
 	margin-top:20px;
 	float:right;
 }
+.subwrapper .raw {
+	text-align: center;
+	width:270px;
+	padding:3px;
+	padding-left:10px;
+	margin-right:10px;
+	margin-top:20px;
+	float:right;
+}
 .subwrapper .failed {
 	background-color: #772425;
 }
@@ -157,15 +167,17 @@ body, html {
 }
 
 .left_col {
-	width:60%;
+	width:calc(60% - 15px);
 	float:left;
+	padding-left:15px;
 }
 .right_col {
-	width:calc( 40% - 41px );
+	width:calc( 40% - 56px );
 	margin-left:20px;
 	padding-left:20px;
 	border-left: 1px solid #232425;
 	float:left;
+	padding-right:15px;
 }
 .participant {
 	width:48px;
@@ -176,6 +188,7 @@ body, html {
 	border-radius: 3px;
 	font-size: 32px;
 	text-align: center;
+	margin-left:5px;
 }
 .participant .fa-user {
 	color: #121314;	
@@ -222,4 +235,38 @@ body, html {
 	float:left;
 	width: calc(100% - 40px);
 	font-size:13px;
+}
+
+/* HEADER */
+#header {
+	display:block;
+	width:calc(100% - 24px);
+	height:48px;
+	background-color: #000102;
+	line-height:42px;
+	padding-left:12px;
+	padding-right:12px;
+}
+.logo_small {
+	font-size: 28px;
+	float:left;
+}
+.logo_small i {
+	font-size: 22px;
+	color: #EEFF55;
+}
+#leave {
+	float:right;
+}
+.link {
+	cursor: pointer;
+}
+.mouseover:hover, .mouseover:hover * {
+	color: #EEFF55;
+}
+.left {
+	float:left;
+}
+.room_tag {
+	padding:5px;
 }
