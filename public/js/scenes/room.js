@@ -20,7 +20,18 @@ var resultsPlaceholder = document.getElementById('results'),
 
     searchString,
     users = {},
-    messages = [];
+    messages = [],
+
+    nowPlaying;
+
+var refresh = function () {
+    if (nowPlaying) {
+        console.log(nowPlaying);
+        var prc = Math.round((Date.now() - nowPlaying.started) / nowPlaying.track.duration_ms*100);
+        console.log('Elapsed: ' + prc + '%');
+    }
+    setTimeout(refresh,1000);
+}; refresh();
 
 var fetchTracks = function (albumId, callback) {
     ajax.get(
@@ -47,13 +58,25 @@ var voteDownTrack = function (target) {
 var playTrack = function (data) {
     if(data && data.track.id) {
 
-        // Desktop player
+        // WORKAROUND START: Change track in desktop player ---------------------------
+        var url,w;
         if(data.time!==false) {
-            location.href='spotify:track:'+data.track.id+'#'+data.time;
+            url='spotify:track:'+data.track.id+'#'+data.time;
         } else {
-            location.href='spotify:track:'+data.track.id;
+            url='spotify:track:'+data.track.id;
         }
+        w=window.open('', '', 'width=200,height=30');
+        w.document.write('<div>Weify changing track...</div><script>window.location.href=\''+url+'\';</script>');
+        // Needed for chrome and safari
+        w.document.close();
+        //
+        setTimeout(function() { w.close(); },1500);
+        // WORKAROUND END ------------------------------------------------------------
 
+        nowPlaying = {
+            track:data.track,
+            started:(Date.now()-data.time_raw)
+        };
 
         /* ToDo: Use webplayer as fallback
         // Web player
@@ -286,6 +309,7 @@ io.on('joined', function(data) {
     npAlbum.innerHTML = 'Queue empty';
     npAlbumArt.style.backgroundImage = "none";
     npDuration.innerHTML = '';
+    nowPlaying = undefined;
 
     showRoom();
 });

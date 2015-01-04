@@ -4,7 +4,7 @@ var 	rooms = {},
 sortTracks = function (room) {
 
 	// Order tracks
-	var 	srcTracks = JSON.parse(JSON.stringify(rooms[room].tracks)),
+	var srcTracks = JSON.parse(JSON.stringify(rooms[room].tracks)),
 		dstTracks = {},
 		nextTrack;
 
@@ -32,7 +32,7 @@ doSendToplist = function (req) {
 		if (rooms.hasOwnProperty(key)) {
 			roomsArr.push({name: key, cnt: rooms[key].users.length ? rooms[key].users.length : 0});
 		}
-	} 
+	}
 	roomsArr.sort(function(a,b){return b.cnt - a.cnt});
 	req.io.emit('toplist',roomsArr.slice(0,5));
 };
@@ -78,7 +78,7 @@ checkPlaying = function () {
 				// Reset last played
 				curRoom.tracks[nextTrack].lastplayed = Date.now();
 				curRoom.nowPlaying = curRoom.tracks[nextTrack];
-				server.io.room(room).broadcast('play',{track:curRoom.nowPlaying,time:false});
+				server.io.room(room).broadcast('play',{track:curRoom.nowPlaying,time:false,time_raw:(Date.now() - curRoom.isPlaying)});
 				doBroadcastTracks(room);
 			}
 		}
@@ -108,11 +108,7 @@ var m = {
 		}
 	},
 	join: function (room,body) {
-		rooms[room].users[body.id] = {
-			id: body.id,
-			images: body.images,
-			display_name: body.display_name
-		};
+		rooms[room].users[body.id] = body;
 		broadcastUsers(room);
 	},
 	leave: function (room,body) {
@@ -121,7 +117,6 @@ var m = {
 	},
 	voteTrack: function (room, user, track) {
 		if (rooms[room].tracks[track.id]===undefined) {
-
 			rooms[room].tracks[track.id]={
 				id: track.id,
 				name: track.name,

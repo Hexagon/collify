@@ -84,9 +84,15 @@ var routes = {
 				rooms.sendTracks(req);
 				curRoom = rooms.get(room);
 				if (curRoom.isPlaying) {
-					var startDuration = new Date((Date.now() - curRoom.isPlaying)).toLocaleTimeString().split(":");
+					var startDurationRaw = (Date.now() - curRoom.isPlaying),
+						startDuration = new Date(startDurationRaw).toLocaleTimeString().split(":");
+
 					startDuration = parseInt(startDuration[1],10) + ':' + startDuration[2];
-					req.io.emit('play',{track:curRoom.nowPlaying,time:startDuration});
+					req.io.emit('play',{
+						track:curRoom.nowPlaying,
+						time:startDuration,
+						time_raw:startDurationRaw
+					});
 				}
 			});
 		}

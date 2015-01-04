@@ -34,8 +34,11 @@ app.get('/callback', function(req, res) {
   var storedState = req.cookies ? req.cookies[stateKey] : null;
 
   if (state === null || state !== storedState) {
+
     res.redirect('/');
+
   } else {
+
     res.clearCookie(stateKey);
     var authOptions = {
       url: 'https://accounts.spotify.com/api/token',
@@ -65,8 +68,14 @@ app.get('/callback', function(req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
           var body = body;
-          // This is where we create the session
-          req.session.body = body;
+
+          // Clear the body from unneccesary junk, and create session
+          req.session.body = {
+            id: body.id,
+            display_name: body.display_name,
+            images: body.images
+          };
+
           req.session.uuid = body.id;
           req.session.name = (body.display_name) ? body.display_name : body.id;
           req.session.save(function() {
