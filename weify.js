@@ -17,7 +17,7 @@ var server = require('./server.js'),
 
 // ToDo | [ ] = Free to grab, [X] = Work in progress
 // ------------------------------------------------------------------------------------------
-// [ ]  Cleanup of user body, no need to passa around all info
+// [ ]  Replace THE workaround.
 // [ ]  Sanitation of all user supplied (direct and indirect) data
 // [ ] 	Persistent data store, currently all rooms/votes/data are stored in memory 
 //	(javascript objects). Which kind of sucks in event of a server restart.
