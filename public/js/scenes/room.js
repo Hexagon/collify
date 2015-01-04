@@ -18,6 +18,9 @@ var resultsPlaceholder = document.getElementById('results'),
 
     leave = document.getElementById('leave'),
 
+    popup_warning = document.getElementById('popup_warning'),
+    try_again = document.getElementById('try_again'),
+
     searchString,
     users = {},
     messages = [],
@@ -55,28 +58,50 @@ var voteDownTrack = function (target) {
     resultbox.innerHTML = '';
 };
 
-var playTrack = function (data) {
-    if(data && data.track.id) {
+var changeTrack = function () {
+
 
         // WORKAROUND START: Change track in desktop player ---------------------------
         var url,w;
-        if(data.time!==false) {
-            url='spotify:track:'+data.track.id+'#'+data.time;
+        if(nowPlaying.time!==false) {
+            url='spotify:track:'+nowPlaying.track.id+'#'+nowPlaying.time;
         } else {
-            url='spotify:track:'+data.track.id;
+            url='spotify:track:'+nowPlaying.track.id;
         }
         w=window.open('', '', 'width=200,height=30');
         w.document.write('<div>Weify changing track...</div><script>window.location.href=\''+url+'\';</script>');
         // Needed for chrome and safari
         w.document.close();
-        //
-        setTimeout(function() { w.close(); },1500);
+
+        // Show warning if popups are blocked
+        if (w) {
+            hidePopupBlockerWarning();
+            setTimeout(function() { w.close(); },1500);
+        } else {
+            showPopupBlockerWarning();
+        }
         // WORKAROUND END ------------------------------------------------------------
+
+};
+
+var showPopupBlockerWarning = function (url) {
+    popup_warning.style.display = 'block';
+};
+
+var hidePopupBlockerWarning = function (url) {
+    popup_warning.style.display = 'none';
+};
+
+var playTrack = function (data) {
+    if(data && data.track.id) {
 
         nowPlaying = {
             track:data.track,
+            time:data.time,
             started:(Date.now()-data.time_raw)
         };
+
+        changeTrack(data);
 
         /* ToDo: Use webplayer as fallback
         // Web player
@@ -296,6 +321,10 @@ io.on('tracks', function(data) {
     } else {
         queuebox.innerHTML = 'NUL!';
     }
+});
+
+try_again.addEventListener('click', function() {
+    window.location.href="/";
 });
 
 io.on('joined', function(data) {
