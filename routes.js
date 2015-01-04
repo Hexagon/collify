@@ -50,7 +50,7 @@ leaveRoom = function (req, callback) {
 		});
 
 		// Add user
-		rooms.join(room,req.session.body);
+		rooms.leave(room,req.session.body);
 }
 
 var routes = {
