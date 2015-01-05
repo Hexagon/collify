@@ -25,7 +25,7 @@ io.on('toplist', function(data) {
     for(i in data) {
         var newElm = document.createElement("div");
         newElm.className = 'room_tag mouseover link left';
-        newElm.innerHTML = '#' + data[i].name;
+        newElm.innerHTML = '#' + escapeHtml(data[i].name);
         newElm.data = data[i].name;
         newElm.addEventListener('click', function(e) {
             io.emit('ready',{room:e.target.data});

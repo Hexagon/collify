@@ -37,7 +37,7 @@
         <div id="scene_room">
             <div id="header">
                 <div class="logo_small"><i class="fa fa-play-circle-o"></i> weify</div>
-                <div class="room link mouseover" id="leave"><i class="fa fa-sign-out"></i> Leave <span id="room_name">room</span></div>
+                <div class="room link mouseover" id="leave"><i class="fa fa-sign-out"></i> Leave #<span id="room_name">room</span></div>
             </div>
             <div id="popup_warning">
                 <div class="logo_small"><i class="fa fa-exclamation-triangle"></i> &nbsp;weify is currently running in fallback mode. Enable pop-ups and  click <span class="link mouseover" id="try_again">here</span> for more reliable operation.</div>
@@ -48,7 +48,15 @@
                 <div id="np_artist"></div>
                 <div class="dash"> - </div>
                 <div id="np_name"></div>
-                <div id="np_duration"></div>
+                <div id="np_progressarea">
+                    <div id="np_elapsed">00:00</div>
+                    <div id="np_progressbar">
+                        <div id="np_pb_elapsed"></div>
+                        <div id="np_pb_left"></div>
+                    </div>
+                    <div id="np_duration">00:00</div>
+                </div>
+
                 <div class="clearfix"></div>
             </div>
             <div class="left_col">
@@ -75,9 +83,20 @@
 
                 </div>
             </div>
+            <div id="clearfix">
+        </div>
+
+        <div id="footer">
+            <span class="left">
+
+            </span>
+            <span class="right">
+                Source code, issues & contributions - <a href="http://github.com/hexagon/weify" class="link mouseover">github.com/hexagon/weify</a>
+            </span>
         </div>
 
         <script src="js/helpers/ajax.js"></script>
+        <script src="js/helpers/escape.js"></script>
         <script src="js/scenes.js"></script>
 
         <script> io = io.connect(); io.emit('ready'); </script>

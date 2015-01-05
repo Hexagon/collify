@@ -7,7 +7,7 @@ sessionOk = function (request) {
 	} else {
 		return false;
 	}
-}
+};
 
 roomOk = function (request) {
 	if (sessionOk(request) && request.session.room) {
@@ -15,7 +15,7 @@ roomOk = function (request) {
 	} else {
 		return false;
 	}
-}
+};
 
 joinRoom = function (req, room, callback) {
 
@@ -36,7 +36,7 @@ joinRoom = function (req, room, callback) {
 
 		// Add user
 		rooms.join(room,req.session.body);
-}
+};
 
 leaveRoom = function (req, callback) {
 
@@ -51,7 +51,7 @@ leaveRoom = function (req, callback) {
 
 		// Add user
 		rooms.leave(room,req.session.body);
-}
+};
 
 var routes = {
 	vote: function (req) {
@@ -59,7 +59,7 @@ var routes = {
 			req.io.emit('denied');
 			return false;
 		}
-		rooms.voteTrack(req.session.room, req.session.uuid, req.data.data);
+		rooms.voteTrack(req.session.room, req.session.body, req.data.data);
 		rooms.broadcastTracks(req.session.room);
 	},
 	voteDown: function (req) {
@@ -67,7 +67,7 @@ var routes = {
 			req.io.emit('denied');
 			return false;
 		}
-		rooms.voteDownTrack(req.session.room, req.session.uuid, req.data.data.id);
+		rooms.voteDownTrack(req.session.room, req.session.body, req.data.data);
 		rooms.broadcastTracks(req.session.room);
 	},
 	ready: function (req) {
@@ -113,7 +113,7 @@ var routes = {
 			req.io.emit('denied',req.session.body);
 			return false;
 		} else {
-			rooms.sendMessage(req);
+			rooms.sendMessage(req.session.body, req.session.room, req.data, 'chat');
 		}
 	},
 	topList: function (req) {

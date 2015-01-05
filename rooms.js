@@ -86,86 +86,100 @@ checkPlaying = function () {
 	setTimeout(checkPlaying,1000);
 };
 
-var m = {
-	exists: function (name) {
-		if (rooms[name] === undefined) {
-			return false;
-		} else {
-			return true;
-		}
-	},
-	create: function (name) {
-		if (rooms[name] === undefined) {
-			rooms[name] = {
-				tracks: {},
-				users: {},
-				isPlaying: false,
-				nowPlaying: false
-			};
-			return true;
-		} else {
-			return false;
-		}
-	},
-	join: function (room,body) {
-		rooms[room].users[body.id] = body;
-		broadcastUsers(room);
-	},
-	leave: function (room,body) {
-		delete rooms[room].users[body.id];
-		broadcastUsers(room);
-	},
-	voteTrack: function (room, user, track) {
-		if (rooms[room].tracks[track.id]===undefined) {
-			rooms[room].tracks[track.id]={
-				id: track.id,
-				name: track.name,
-				duration_ms: track.duration_ms,
-				album: {
-					images: track.album.images,
-					name: track.album.name
-				},
-				artists: track.artists
-			};
-			rooms[room].tracks[track.id].votes = new Array();
-			rooms[room].tracks[track.id].downvotes = new Array();
-		}
+var exposed = {};
 
-		if (rooms[room].tracks[track.id].votes.indexOf(user) === -1) {
-			if(rooms[room].tracks[track.id].votes.length===0) {
-				rooms[room].tracks[track.id].firstvote = Date.now();
-				rooms[room].tracks[track.id].lastplayed = 0;
-			}
-			rooms[room].tracks[track.id].votes.push(user);
+exposed.sendMessage = function (user, room, message, type) {
+	server.io.room(room).broadcast(
+		'message',
+		{
+			user:user,
+			message:message,
+			type:type
 		}
-	},
-	voteDownTrack: function (room, user, id) {
-		if (rooms[room].tracks[id].downvotes.indexOf(user) === -1) {
-			rooms[room].tracks[id].downvotes.push(user);
-		}
-	},
-	get: function (name) {
-		return rooms[name];
-	},
-	broadcastTracks: function (room) {
-		doBroadcastTracks(room);
-	},
-	sendTracks: function (req) {
-		req.io.emit('tracks',rooms[req.session.room].tracks);
-	},
-	startCheckLoop: function () {
-		checkPlaying();
-	},
-	sendMessage: function (req) {
-		server.io.room(req.session.room).broadcast('message',{user:req.session.body,message:req.data});
-	},
-	sendToplist: function (req) {
-		doSendToplist(req);
+	);
+};
+exposed.exists = function (name) {
+	if (rooms[name] === undefined) {
+		return false;
+	} else {
+		return true;
 	}
+};
+exposed.create = function (name) {
+	if (rooms[name] === undefined) {
+		rooms[name] = {
+			tracks: {},
+			users: {},
+			isPlaying: false,
+			nowPlaying: false
+		};
+		return true;
+	} else {
+		return false;
+	}
+};
+exposed.join = function (room,body) {
+	exposed.sendMessage(body,room,'Joined this room','system');
+
+	rooms[room].users[body.id] = body;
+	broadcastUsers(room);
+};
+exposed.leave = function (room,body) {
+	exposed.sendMessage(body,room,'Left this room','system');
+
+	delete rooms[room].users[body.id];
+	broadcastUsers(room);
+};
+exposed.voteTrack = function (room, user, track) {
+	exposed.sendMessage(user,room,'Voted for ' + track.name,'system');
+
+	if (rooms[room].tracks[track.id]===undefined) {
+		rooms[room].tracks[track.id]={
+			id: track.id,
+			name: track.name,
+			duration_ms: track.duration_ms,
+			album: {
+				images: track.album.images,
+				name: track.album.name
+			},
+			artists: track.artists
+		};
+		rooms[room].tracks[track.id].votes = new Array();
+		rooms[room].tracks[track.id].downvotes = new Array();
+	}
+
+	if (rooms[room].tracks[track.id].votes.indexOf(user.id) === -1) {
+		if(rooms[room].tracks[track.id].votes.length===0) {
+			rooms[room].tracks[track.id].firstvote = Date.now();
+			rooms[room].tracks[track.id].lastplayed = 0;
+		}
+		rooms[room].tracks[track.id].votes.push(user.id);
+	}
+};
+exposed.voteDownTrack = function (room, user, track) {
+	exposed.sendMessage(user,room,'Voted down ' + track.name,'system');
+	if (rooms[room].tracks[track.id].downvotes.indexOf(user.id) === -1) {
+		rooms[room].tracks[track.id].downvotes.push(user.id);
+	}
+};
+exposed.get = function (name) {
+	return rooms[name];
+},
+exposed.broadcastTracks = function (room) {
+	doBroadcastTracks(room);
+};
+exposed.sendTracks = function (req) {
+	req.io.emit('tracks',rooms[req.session.room].tracks);
+},
+exposed.startCheckLoop = function () {
+	checkPlaying();
+};
+exposed.sendToplist = function (req) {
+	doSendToplist(req);
 };
 
 server.disconnectEvent = function(room,body) {
-	m.leave(room,body);
+	exposed.leave(room,body);
 };
 
-module.exports = m;
+module.exports = exposed;

@@ -21,6 +21,9 @@ var resultsPlaceholder = document.getElementById('results'),
     popup_warning = document.getElementById('popup_warning'),
     try_again = document.getElementById('try_again'),
 
+    np_pb_elapsed = document.getElementById('np_pb_elapsed'),
+    np_pb_left = document.getElementById('np_pb_left'),
+
     searchString,
     users = {},
     messages = [],
@@ -29,12 +32,21 @@ var resultsPlaceholder = document.getElementById('results'),
 
 var refresh = function () {
     if (nowPlaying) {
-        var prc = Math.round((Date.now() - nowPlaying.started) / nowPlaying.track.duration_ms*100);
-        // ToDo: Nice progress bar
-        // Elapsed time (0-100) is available in the prc variable, this is updated once a second
+        var elapsed_ms = (Date.now() - nowPlaying.started) > nowPlaying.track.duration_ms ? nowPlaying.track.duration_ms : (Date.now() - nowPlaying.started),
+            elapsed_str = new Date(elapsed_ms).toLocaleTimeString(),
+            prc = Math.round(elapsed_ms / nowPlaying.track.duration_ms*100);
+
+        // Forcibly limit range to 0-100
+        prc = (prc > 100) ? 100 : ((prc < 0) ? 0 : prc);
+
+        np_pb_elapsed.style.width=prc + "%";
+        np_pb_left.style.width=100-prc + "%";
+
+        // Shorten elapsed time from HH:MM:SS to MM:SS and update UI
+        np_elapsed.innerHTML = elapsed_str.substr(elapsed_str.length-5);
     }
     setTimeout(refresh,1000);
-}; refresh();
+};
 
 var fetchTracks = function (albumId, callback) {
     ajax.get(
@@ -96,7 +108,7 @@ var showPopupBlockerWarning = function (url) {
 
 var hidePopupBlockerWarning = function (url) {
     popup_warning.style.display = 'none';
-}; hidePopupBlockerWarning();
+};
 
 var playTrack = function (data) {
     if(data && data.track.id) {
@@ -140,9 +152,6 @@ var processSearchResult = function (response) {
                 var newElm = document.createElement("div");
                 newElm.id = curTrack.id;
 
-                var clearFixElement = document.createElement("div");
-                clearFixElement.className = "clearfix";
-
                 var vuElement = document.createElement("i");
                 vuElement.className = "vote fa fa-plus-circle link mouseover ";
                 vuElement.data = JSON.stringify(curTrack);
@@ -156,6 +165,9 @@ var processSearchResult = function (response) {
                 newElm.innerHTML += '<div class="tr_name">'+curTrack.artists[0].name+'</div>';
 
                 newElm.appendChild(vuElement);
+
+                var clearFixElement = document.createElement("div")
+                clearFixElement.className = "clearfix";
                 newElm.appendChild(clearFixElement);
 
                 resultbox.appendChild(newElm);
@@ -227,8 +239,8 @@ io.on('users', function(data) {
     } else {
         // Should really not happen
     }
-    
-    var clearFixElement = document.createElement("div");
+
+    var clearFixElement = document.createElement("div")
     clearFixElement.className = "clearfix";
     participants.appendChild(clearFixElement);
 
@@ -236,7 +248,7 @@ io.on('users', function(data) {
 
 io.on('message', function(data) {
 
-    // Update stack
+    // Update stack, allow at most 15 messages to be shown
     messages.push(data);
     if (messages.length>15) {
         messages.shift();
@@ -244,7 +256,7 @@ io.on('message', function(data) {
 
     historyContainer.innerHTML = '';
 
-    // Update interface
+    // Render all messages currently on the stack
     for (var idx=messages.length-1;idx>=0;idx--) {
         var curMessage = messages[idx];
         var curUser = curMessage.user;
@@ -266,12 +278,17 @@ io.on('message', function(data) {
         parElement.setAttribute("title",curUser.display_name ? curUser.display_name : curUser.id);
         msgElement.appendChild(parElement);
 
+        var msgParticipantName = document.createElement("div");
+        msgParticipantName.className = "msg_participant_name";
+        msgParticipantName.innerHTML = curUser.display_name ? curUser.display_name : curUser.id;
+        msgElement.appendChild(msgParticipantName);
+
         var msgContentElement = document.createElement("div");
-        msgContentElement.className = "msg_content";
-        msgContentElement.innerHTML = curMessage.message;
+        msgContentElement.className = "msg_content msg_content_" + curMessage.type;
+        msgContentElement.innerHTML = escapeHtml(curMessage.message);
         msgElement.appendChild(msgContentElement);
 
-        var clearFixElement = document.createElement("div");
+        var clearFixElement = document.createElement("div")
         clearFixElement.className = "clearfix";
         msgElement.appendChild(clearFixElement);
     
@@ -290,9 +307,6 @@ io.on('tracks', function(data) {
     if(data) {
         for(track in data) {
             curTrack = data[track];
-
-            var clearFixElement = document.createElement("div");
-            clearFixElement.className = "clearfix";
 
             var vuElement = document.createElement("i");
             vuElement.className = "vote fa fa-thumbs-up mouseover link";
@@ -315,6 +329,9 @@ io.on('tracks', function(data) {
             
             newElm.appendChild(vdElement);
             newElm.appendChild(vuElement);
+
+            var clearFixElement = document.createElement("div")
+            clearFixElement.className = "clearfix";
             newElm.appendChild(clearFixElement);
 
             queuebox.appendChild(newElm);
@@ -331,8 +348,9 @@ try_again.addEventListener('click', function() {
 
 io.on('joined', function(data) {
     // data == room name
+
     // Set room name
-    roomName.innerHTML = data;
+    roomName.innerHTML = escapeHtml(data);
 
     // Reset now playing
     npArtist.innerHTML = '';
@@ -342,5 +360,8 @@ io.on('joined', function(data) {
     npDuration.innerHTML = '';
     nowPlaying = undefined;
 
+    // Use UI defaults
+    hidePopupBlockerWarning();refresh();
+    
     showRoom();
 });
