@@ -3,14 +3,27 @@ weify
 
 WIP POC spotify group/collaborative listening.
 
-  * npm install express.io
-  * npm install node-uuid
-  * npm install request
-  
-  # Copy config.json.template to config.json, edit to your preferences
+Live at http://www.weify.net
 
-  * node weify.js
+Installation
+=======
+
+Install dependencies
+
+```npm install express.io```
+
+```npm install node-uuid```
+
+```npm install request```
+
+Copy config.json.template to config.json, edit to your preferences
+
+Start weify
+
+```node weify.js```
   
-  # browse to localhost:7076
-  
+Browse to localhost:7076
+
+=======
+ 
 "Documentation" and ToDo available in weify.js
