@@ -20,6 +20,7 @@ var server = require('./server.js'),
 // [ ]  Replace THE workaround.
 // [ ]	Use spotify api to save current room queue as a playlist
 // [ ]	Display which users have voted (up AND down) a song
+// [ ]  Chat history is not cleared when switching room
 // ...
 // ------------------------------------------------------------------------------------------
 
