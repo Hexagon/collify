@@ -1,5 +1,7 @@
 var 	rooms = {},
-	server = require('./server.js');
+	server = require('./server.js'),
+	fs = require('fs'),
+	crypto = require('crypto');
 
 sortTracks = function (room) {
 
@@ -40,7 +42,7 @@ doSendToplist = function (req) {
 nextTrackID = function (useTracks) {
 
 	// Find max amount of votes
-	var 	maxVotes = 0,
+	var 	maxVotes = -Infinity,
 		minLastPlayed = Infinity,
 		nextTrack = false,
 		curTrack;
@@ -98,11 +100,19 @@ exposed.sendMessage = function (user, room, message, type) {
 		}
 	);
 };
-exposed.exists = function (name) {
+exposed.exists = function (name, callback) {
 	if (rooms[name] === undefined) {
-		return false;
+		exposed.load(
+			name, 
+			function() {
+				callback (true);
+			},
+			function() {
+				callback (false);
+			}
+		);
 	} else {
-		return true;
+		callback (true);
 	}
 };
 exposed.create = function (name) {
@@ -113,14 +123,47 @@ exposed.create = function (name) {
 			isPlaying: false,
 			nowPlaying: false
 		};
+
+		// Save to file
+		exposed.save(name);
+
 		return true;
 	} else {
 		return false;
 	}
 };
+exposed.save = function (room, success, error) {
+	if (rooms[room] !== undefined) {
+		var roomClone = JSON.parse(JSON.stringify(rooms[room])),
+			roomNameHash = crypto.createHash('sha1').update(room).digest('hex');
+
+		// Clear users before saving
+		roomClone.users = {};
+		
+		fs.writeFile("db/"+roomNameHash, JSON.stringify(roomClone), function(err) {
+		    if(err) {
+		        error && error();
+		    } else {
+		        success && success();
+		    }
+		});
+	} else {
+		error && error();
+	}
+};
+exposed.load = function (room, success, error) {
+	var roomNameHash = crypto.createHash('sha1').update(room).digest('hex');
+	fs.readFile('db/' + roomNameHash, function read(err, data) {
+	    if (err) {
+	        error && error();
+	        return;
+	    }
+	    rooms[room] = JSON.parse(data);
+	    success && success();
+	});
+};
 exposed.join = function (room,body) {
 	exposed.sendMessage(body,room,'Joined this room','system');
-
 	rooms[room].users[body.id] = body;
 	broadcastUsers(room);
 };
@@ -155,12 +198,16 @@ exposed.voteTrack = function (room, user, track) {
 		}
 		rooms[room].tracks[track.id].votes.push(user.id);
 	}
+
+	exposed.save(room);
 };
 exposed.voteDownTrack = function (room, user, track) {
 	exposed.sendMessage(user,room,'Voted down ' + track.name,'system');
 	if (rooms[room].tracks[track.id].downvotes.indexOf(user.id) === -1) {
 		rooms[room].tracks[track.id].downvotes.push(user.id);
 	}
+
+	exposed.save(room);
 };
 exposed.get = function (name) {
 	return rooms[name];
@@ -180,6 +227,9 @@ exposed.sendToplist = function (req) {
 
 server.disconnectEvent = function(room,body) {
 	exposed.leave(room,body);
+	for (room in rooms) {
+		exposed.save(room);
+	}
 };
 
 module.exports = exposed;

@@ -18,12 +18,8 @@ var server = require('./server.js'),
 // ToDo | [ ] = Free to grab, [X] = Work in progress
 // ------------------------------------------------------------------------------------------
 // [ ]  Replace THE workaround.
-// [ ] 	Persistent data store, currently all rooms/votes/data are stored in memory 
-//	(javascript objects). Which kind of sucks in event of a server restart.
 // [ ]	Use spotify api to save current room queue as a playlist
 // [ ]	Display which users have voted (up AND down) a song
-// [ ]  Auto generated messages on enter/exit/vote
-// [ ]  At -1 votes, the song disappears
 // ...
 // ------------------------------------------------------------------------------------------
 

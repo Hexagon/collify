@@ -19,9 +19,13 @@ roomOk = function (request) {
 
 joinRoom = function (req, room, callback) {
 
-		// Create room if it doesnt exist
-		if (!rooms.exists(room)) {
+	// Create room if it doesnt exist
+	rooms.exists(room, function (result) {
+
+		if (!result) {
 			rooms.create(room);
+		} else {
+			rooms.load(room);
 		}
 
 		// Connect socket to room
@@ -36,6 +40,9 @@ joinRoom = function (req, room, callback) {
 
 		// Add user
 		rooms.join(room,req.session.body);
+
+	});
+
 };
 
 leaveRoom = function (req, callback) {
