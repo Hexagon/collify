@@ -1,12 +1,11 @@
-var resultsPlaceholder = document.getElementById('results'),
-    spotiFrame = document.getElementById('spotiframe'),
-    queueBox = document.getElementById('queuebox'),
+var queueBox = document.getElementById('queuebox'),
 
     npArtist = document.getElementById('np_artist'),
     npName = document.getElementById('np_name'),
     npAlbum = document.getElementById('np_album'),
     npAlbumArt = document.getElementById('np_albumart'),
     npDuration = document.getElementById('np_duration'),
+    npElapsed = document.getElementById('np_elapsed'),
 
     participants = document.getElementById('participants'),
 
@@ -21,12 +20,16 @@ var resultsPlaceholder = document.getElementById('results'),
     popup_warning = document.getElementById('popup_warning'),
     try_again = document.getElementById('try_again'),
 
-    np_pb_elapsed = document.getElementById('np_pb_elapsed'),
-    np_pb_left = document.getElementById('np_pb_left'),
+    resultbox = document.getElementById('resultbox'),
+
+    npPbElapsed = document.getElementById('np_pb_elapsed'),
+    npPbLeft = document.getElementById('np_pb_left'),
 
     searchString,
     users = {},
     messages = [],
+
+    lastSearch = '',
 
     nowPlaying;
 
@@ -39,11 +42,11 @@ var refresh = function () {
         // Forcibly limit range to 0-100
         prc = (prc > 100) ? 100 : ((prc < 0) ? 0 : prc);
 
-        np_pb_elapsed.style.width=prc + "%";
-        np_pb_left.style.width=100-prc + "%";
+        npPbElapsed.style.width=prc + "%";
+        npPbLeft.style.width=100-prc + "%";
 
         // Shorten elapsed time from HH:MM:SS to MM:SS and update UI
-        np_elapsed.innerHTML = elapsed_str.substr(elapsed_str.length-5);
+        npElapsed.innerHTML = elapsed_str.substr(elapsed_str.length-5);
     }
     setTimeout(refresh,1000);
 };
@@ -139,7 +142,6 @@ var playTrack = function (data) {
 
 var processSearchResult = function (response) {
     var obj,
-        resultbox = document.getElementById('resultbox'),
         curTrack;
 
     resultbox.innerHTML = '';
@@ -174,10 +176,10 @@ var processSearchResult = function (response) {
 
             }
         } else {
-            resultbox.innerHTML = 'NUL!';
+            resultbox.innerHTML = 'No results for \''+lastSearch+'\'';
         }
     } else {
-        resultbox.innerHTML = 'NUL!';
+        resultbox.innerHTML = 'No results for \''+lastSearch+'\'';
     }
 };
 
@@ -194,6 +196,7 @@ var searchTracks = function (query) {
 
 searchStringElm.addEventListener('keypress',function(e) {
     if(e.keyCode===13) {
+        lastSearch = searchStringElm.value;
         searchTracks(searchStringElm.value);
         searchStringElm.value = '';
     }
@@ -207,6 +210,7 @@ message.addEventListener('keypress',function(e) {
 });
 
 leave.addEventListener('click',function(e) {
+    messages = [];
     io.emit('leave');
 });
 
@@ -353,15 +357,27 @@ io.on('joined', function(data) {
     roomName.innerHTML = escapeHtml(data);
 
     // Reset now playing
-    npArtist.innerHTML = '';
-    npName.innerHTML = 'Waiting for first vote';
-    npAlbum.innerHTML = 'Queue empty';
+    npArtist.innerHTML = 'Queue empty';
+    npName.innerHTML =  'Waiting for first vote';
+    npAlbum.innerHTML = 'Welcome to #' + data;
     npAlbumArt.style.backgroundImage = "none";
     npDuration.innerHTML = '';
+    npElapsed.innerHTML = '';
+    npPbElapsed.style.width=0 + "%";
+    npPbLeft.style.width=100 + "%";
     nowPlaying = undefined;
+
+    // Reset search result
+    resultbox.innerHTML = '';
 
     // Use UI defaults
     hidePopupBlockerWarning();refresh();
     
     showRoom();
+});
+
+document.addEventListener('keyup',function(e) {
+    if (e.keyCode == 27) {
+        resultbox.innerHTML = '';
+    }
 });

@@ -12,8 +12,6 @@ Install dependencies
 
 ```npm install express.io```
 
-```npm install node-uuid```
-
 ```npm install request```
 
 Copy config.json.template to config.json, edit to your preferences

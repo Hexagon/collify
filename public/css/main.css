@@ -5,7 +5,6 @@ body, html {
 	background-color: #121314;
 	width:100%;
 	height:100%;
-	padding-bottom:32px;
 }
 
 * {
@@ -20,6 +19,7 @@ body, html {
 
 #scene_room {
 	padding:1px;
+	margin-bottom:40px;
 }
 
 /* NOW PLAYING */
@@ -69,6 +69,9 @@ body, html {
 }
 
 /* SEARCH RESULT / TRACK QUEUE */
+#resultbox {
+	margin-bottom: 15px;
+}
 .searchresult {
 	background-color: #18191A;
 }
@@ -178,11 +181,15 @@ body, html {
 }
 
 .left_col {
+	display:block;
+	height:auto;
 	width:calc(60% - 15px);
 	float:left;
 	padding-left:15px;
 }
 .right_col {
+	display:block;
+	height:auto;
 	width:calc( 40% - 56px );
 	margin-left:20px;
 	padding-left:20px;
@@ -232,7 +239,7 @@ body, html {
 .msg_participant {
 	width:42px;
 	height:42px;
-	background-size: 32px 32px !important;
+	background-size: 42px 42px !important;
 	float:left;
 	margin-right: 5px;
 	border-radius: 3px;

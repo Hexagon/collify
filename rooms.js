@@ -152,6 +152,7 @@ exposed.save = function (room, success, error) {
 	}
 };
 exposed.load = function (room, success, error) {
+	console.log('Loading');
 	var roomNameHash = crypto.createHash('sha1').update(room).digest('hex');
 	fs.readFile('db/' + roomNameHash, function read(err, data) {
 	    if (err) {
@@ -174,9 +175,10 @@ exposed.leave = function (room,body) {
 	broadcastUsers(room);
 };
 exposed.voteTrack = function (room, user, track) {
-	exposed.sendMessage(user,room,'Voted for ' + track.name,'system');
 
 	if (rooms[room].tracks[track.id]===undefined) {
+		exposed.sendMessage(user,room,'Voted for ' + track.name,'system');
+
 		rooms[room].tracks[track.id]={
 			id: track.id,
 			name: track.name,
@@ -189,25 +191,32 @@ exposed.voteTrack = function (room, user, track) {
 		};
 		rooms[room].tracks[track.id].votes = new Array();
 		rooms[room].tracks[track.id].downvotes = new Array();
+
+		exposed.save(room);
 	}
 
 	if (rooms[room].tracks[track.id].votes.indexOf(user.id) === -1) {
+		exposed.sendMessage(user,room,'Voted for ' + track.name,'system');
+
 		if(rooms[room].tracks[track.id].votes.length===0) {
 			rooms[room].tracks[track.id].firstvote = Date.now();
 			rooms[room].tracks[track.id].lastplayed = 0;
 		}
 		rooms[room].tracks[track.id].votes.push(user.id);
+
+		exposed.save(room);
 	}
 
-	exposed.save(room);
 };
 exposed.voteDownTrack = function (room, user, track) {
-	exposed.sendMessage(user,room,'Voted down ' + track.name,'system');
 	if (rooms[room].tracks[track.id].downvotes.indexOf(user.id) === -1) {
-		rooms[room].tracks[track.id].downvotes.push(user.id);
-	}
 
-	exposed.save(room);
+		exposed.sendMessage(user,room,'Voted down ' + track.name,'system');
+		
+		rooms[room].tracks[track.id].downvotes.push(user.id);
+
+		exposed.save(room);
+	}
 };
 exposed.get = function (name) {
 	return rooms[name];

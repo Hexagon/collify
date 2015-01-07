@@ -1,5 +1,4 @@
-var 	uuid = require('uuid'),
-	rooms = require('./rooms.js');
+var rooms = require('./rooms.js');
 
 sessionOk = function (request) {
 	if (request.session.uuid && request.session.name) {
@@ -24,8 +23,6 @@ joinRoom = function (req, room, callback) {
 
 		if (!result) {
 			rooms.create(room);
-		} else {
-			rooms.load(room);
 		}
 
 		// Connect socket to room
