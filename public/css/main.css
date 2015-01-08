@@ -81,42 +81,46 @@ body, html {
 	padding-bottom:7px;
 	clear:both;
 }
-.track * {
-	line-height:32px;
-}
 .vote {
-	line-height:32px;
-	font-size: 22px;
+	line-height: 42px;
+	font-size: 23px;
 	color: #555657;
 	float: right;
 	margin-left:15px;
 }
 .tr_votes {
-	width:32px;
-	height:32px;
+	width:42px;
+	height:42px;
 	float:left;
 	border-radius: 3px;
 	border: 1px solid #343536;
 	text-align: center;
-	font-size:28px;
+	font-size:23px;
 	padding:0px;
-	line-height:32px;
+	line-height:42px;
 	color: #555657;
 }
 .tr_albumart {
-	width:32px;
-	height:32px;
-	background-size: 32px 32px !important;
+	width:42px;
+	height:42px;
+	background-size: 42px 42px !important;
 	float:left;
-	border-radius: 3px;
+	border-radius: 4px;
 }
-.tr_artist, .tr_albumart {
+.tr_artist, .tr_albumart, .tr_by {
 	margin-left:8px;
 }
 .tr_artist, .tr_dash, .tr_name {
 	float:left;
 	font-size: 14px;
-
+}
+.tr_artist {
+	width:calc( 100% - 190px);
+}
+.tr_by, .tr_at, .tr_by a {
+	float:left;
+	font-size: 12px;
+	color: #aaabac;
 }
 
 /* Login page */
@@ -375,4 +379,10 @@ body, html {
 }
 .right {
 	float: right;
+}
+.clear_right {
+	clear: right;
+}
+.clear_left {
+	clear: left;
 }

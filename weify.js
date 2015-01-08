@@ -20,15 +20,7 @@ var server = require('./server.js'),
 // [ ]  Replace THE workaround.
 // [ ]	Use spotify api to save current room queue as a playlist
 // [ ]	Display which users have voted (up AND down) a song
-// [X]  Chat history is not cleared when switching room
-// [X]  Remove dependency on uuid (readme and routes.js), this is no longer used
-// [X]  Background-size is incorrect in the chat-window
-// [X]  Repeated chat messages on repeated votes
 // [ ]  Not possible to search for spotify URIs
-// [X]  Footer is not on bottom of page
-// [X]  Possibility to minimize search result
-// [X]  Progressbar and elapsed is not cleared on changing room
-// [X]  Only one participant is showing
 // ...
 // ------------------------------------------------------------------------------------------
 

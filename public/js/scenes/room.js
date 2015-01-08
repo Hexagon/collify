@@ -304,7 +304,9 @@ io.on('message', function(data) {
 
 io.on('tracks', function(data) {
     var obj,
-        curTrack;
+        curTrack
+
+    console.log(data);
 
     queuebox.innerHTML = '';
 
@@ -327,12 +329,14 @@ io.on('tracks', function(data) {
             newElm.className = 'track';
             newElm.innerHTML = '<div class="tr_votes">'+(curTrack.votes.length-curTrack.downvotes.length)+'</div>';
             newElm.innerHTML += '<div class="tr_albumart" style="background: URL('+curTrack.album.images[2].url+')"></div>';
-            newElm.innerHTML += '<div class="tr_artist">'+curTrack.name+'</div>';
-            newElm.innerHTML += '<div class="dash">-</div>';
-            newElm.innerHTML += '<div class="tr_name">'+curTrack.artists[0].name+'</div>';
+            newElm.innerHTML += '<div class="tr_artist">'+curTrack.name+ ' - '+curTrack.artists[0].name+'</div>';
+            if (curTrack.added) {
+                console.log(curTrack.added.by);
+                newElm.innerHTML += '<div class="tr_by">Added by '+(curTrack.added.by.display_name ? curTrack.added.by.display_name : curTrack.added.by.id)+'</div>';
+            }
             
-            newElm.appendChild(vdElement);
-            newElm.appendChild(vuElement);
+            newElm.insertBefore(vuElement,newElm.firstChild);
+            newElm.insertBefore(vdElement,newElm.firstChild);
 
             var clearFixElement = document.createElement("div")
             clearFixElement.className = "clearfix";

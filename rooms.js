@@ -176,8 +176,10 @@ exposed.leave = function (room,body) {
 };
 exposed.voteTrack = function (room, user, track) {
 
+	var added = false, voted = false;
 	if (rooms[room].tracks[track.id]===undefined) {
-		exposed.sendMessage(user,room,'Voted for ' + track.name,'system');
+		exposed.sendMessage(user,room,'Added ' + track.name,'system');
+		added = true;
 
 		rooms[room].tracks[track.id]={
 			id: track.id,
@@ -187,23 +189,32 @@ exposed.voteTrack = function (room, user, track) {
 				images: track.album.images,
 				name: track.album.name
 			},
-			artists: track.artists
+			artists: track.artists,
+			added: {
+				by: user,
+				at: Date.now()
+			}
 		};
+
 		rooms[room].tracks[track.id].votes = new Array();
 		rooms[room].tracks[track.id].downvotes = new Array();
 
-		exposed.save(room);
 	}
 
 	if (rooms[room].tracks[track.id].votes.indexOf(user.id) === -1) {
-		exposed.sendMessage(user,room,'Voted for ' + track.name,'system');
+		voted = true;
+
+		if (!added) exposed.sendMessage(user,room,'Voted for ' + track.name,'system');
 
 		if(rooms[room].tracks[track.id].votes.length===0) {
 			rooms[room].tracks[track.id].firstvote = Date.now();
 			rooms[room].tracks[track.id].lastplayed = 0;
 		}
-		rooms[room].tracks[track.id].votes.push(user.id);
 
+		rooms[room].tracks[track.id].votes.push(user.id);
+	}
+
+	if (added || voted) {
 		exposed.save(room);
 	}
 
@@ -212,7 +223,7 @@ exposed.voteDownTrack = function (room, user, track) {
 	if (rooms[room].tracks[track.id].downvotes.indexOf(user.id) === -1) {
 
 		exposed.sendMessage(user,room,'Voted down ' + track.name,'system');
-		
+
 		rooms[room].tracks[track.id].downvotes.push(user.id);
 
 		exposed.save(room);
