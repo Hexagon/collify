@@ -84,17 +84,16 @@ var changeTrack = function () {
         }
 
         // Try to open window
-        w=window.open('', '', 'width=200,height=30');
+        w=window.open(url, 'weify-popper');
 
         // Show warning if popups are blocked
         if (w && w.document) {
-            // Popups not blocked
-
-            w.document.write('<div>Weify changing track...</div><script>window.location.href=\''+url+'\';</script>');
-            // Needed for chrome and safari
-            w.document.close();
+            w.document.write('<html><head><title>Weify Helper</title></head><body style="background-color:#121314;color:#EEEEEE">This tab is used by weify. Just leave it in the background.</body></html>');
             hidePopupBlockerWarning();
-            setTimeout(function() { w.close(); },1500);
+
+            // Try to give back focus
+            w.blur();
+            window.focus();
         } else {
             // Popups blocked
             showPopupBlockerWarning();
