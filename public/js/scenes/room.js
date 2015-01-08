@@ -162,9 +162,7 @@ var processSearchResult = function (response) {
                 newElm.className = 'track searchresult';
                 newElm.innerHTML = '<div class="tr_votes"> - </div>';
                 newElm.innerHTML += '<div class="tr_albumart" style="background: URL('+curTrack.album.images[2].url+')"></div>';
-                newElm.innerHTML += '<div class="tr_artist">'+curTrack.name+'</div>';
-                newElm.innerHTML += '<div class="dash">-</div>';
-                newElm.innerHTML += '<div class="tr_name">'+curTrack.artists[0].name+'</div>';
+                newElm.innerHTML += '<div class="tr_artist">'+curTrack.name+' - '+curTrack.artists[0].name+'</div>';
 
                 newElm.appendChild(vuElement);
 
