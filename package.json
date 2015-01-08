@@ -1,0 +1,9 @@
+{
+  "name": "weify",
+  "description": "Collaborative listening on spotify. http://www.weify.net",
+  "author": "Robin Nilsson <https://github.com/Hexagon/weify>",
+  "dependencies": {
+    "express.io": "^1.1.13",
+    "request": "^2.51.0"
+  }
+}
