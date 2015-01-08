@@ -1,5 +1,4 @@
-var 	express = require('express.io'),
-	uuid = require('uuid'),
+var express = require('express.io'),
 	config = require('./config.json'),
 	app = express();
 
