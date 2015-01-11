@@ -1,0 +1,18 @@
+<html>
+<head>
+	<title>Weify track changer</title>
+	<style>body { background-color: #111213; color: #EEE; font-family: Tahoma;}</style>
+</head>
+<body>
+	<span>This window is used by weify to change track in the spotify desktop client.</span>
+	<script>
+	function getParameterByName(name) {
+	    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+	    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+	        results = regex.exec(location.search);
+	    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+	window.location.href=getParameterByName('t');
+	</script>
+</body>
+</html>

@@ -75,7 +75,31 @@ var voteDownTrack = function (target) {
 
 var changeTrack = function () {
 
-        // WORKAROUND START: Change track in desktop player ---------------------------
+        // Change track in desktop player ------------------------------------------------
+        //
+        // Disclaimer: Fugly hack
+        //
+        // Just changing location.href to the spotify URI works just find, but for it to 
+        // work each and every time, the user have to actively click in the browser window
+        // between each track change.
+        // 
+        // A way to get around this, is to open a pop-up window that is forced to reload
+        // between each track change by pointing window.open to a special .html-file
+        // that just redirects the request to the spotify URI. 
+        // 
+        // SO - Psuedo code
+        // 
+        // Try to use the reliable way to change track (open pop-up window) 
+        //   User allow Pop-ups
+        //      Yes - Track changed
+        //   User doeas not allow Pop-ups
+        //      Inform the user that "fallback mode" is used
+        //      Try to use the less reliable way to change track
+        //         Did tre user click somewhere in the weify window since last track change
+        //             Yes - Track changed
+        //             No  - TRACK NOT CHANGED!!
+        //
+
         var url,w;
         if(nowPlaying.time!==false) {
             url='spotify:track:'+nowPlaying.track.id+'#'+nowPlaying.time;
@@ -83,24 +107,24 @@ var changeTrack = function () {
             url='spotify:track:'+nowPlaying.track.id;
         }
 
-        // Try to open window
-        w=window.open(url, 'weify-popper');
+        // Try to use the reliable way to change track (open pop-up window) 
+        w=window.open('play.html?t='+url, 'weify-popper','width=300,height=50');
 
-        // Show warning if popups are blocked
         if (w && w.document) {
-            w.document.write('<html><head><title>Weify Helper</title></head><body style="background-color:#121314;color:#EEEEEE">This tab is used by weify. Just leave it in the background.</body></html>');
+            // WORKED
             hidePopupBlockerWarning();
 
-            // Try to give back focus
-            w.blur();
-            window.focus();
         } else {
+            // DID NOT WORK
+
             // Popups blocked
             showPopupBlockerWarning();
-            // Use workaround
+
+            // Use the less nice workaround - This MIGHT work
             location.href = url;
         }
-        // WORKAROUND END ------------------------------------------------------------
+
+        // --------------------------------------------------------------------------
 
 };
 
