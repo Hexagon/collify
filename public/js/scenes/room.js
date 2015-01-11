@@ -31,7 +31,9 @@ var queueBox = document.getElementById('queuebox'),
 
     lastSearch = '',
 
-    nowPlaying;
+    nowPlaying,
+
+    popper;
 
 var refresh = function () {
     if (nowPlaying) {
@@ -100,7 +102,7 @@ var changeTrack = function () {
         //             No  - TRACK NOT CHANGED!!
         //
 
-        var url,w;
+        var url;
         if(nowPlaying.time!==false) {
             url='spotify:track:'+nowPlaying.track.id+'#'+nowPlaying.time;
         } else {
@@ -108,9 +110,9 @@ var changeTrack = function () {
         }
 
         // Try to use the reliable way to change track (open pop-up window) 
-        w=window.open('play.html?t='+url, 'weify-popper','width=300,height=50');
+        popper=window.open('play.html?t='+url, 'weify-popper','width=300,height=50');
 
-        if (w && w.document) {
+        if (popper && popper.document) {
             // WORKED
             hidePopupBlockerWarning();
 
@@ -373,6 +375,13 @@ io.on('tracks', function(data) {
 
 try_again.addEventListener('click', function() {
     window.location.href="/";
+});
+
+// Always close the pop-up when the "main" weify window closes
+window.addEventListener('beforeunload', function() {
+    if (popper && popper.close) {
+        popper.close();
+    }
 });
 
 io.on('joined', function(data) {
